@@ -1,3 +1,74 @@
+<?php
+// Include database connection
+require_once '../includes/db_connection.php';
+
+// Get categories for navigation
+$cat_query = "SELECT id, name, slug FROM categories WHERE is_active = 1 ORDER BY display_order ASC";
+$categories = $conn->query($cat_query);
+
+// Get featured article
+$featured_query = "SELECT a.*, c.name as category_name, c.slug as category_slug, 
+                  CONCAT(u.first_name, ' ', u.last_name) as author_name 
+                  FROM articles a 
+                  JOIN categories c ON a.category_id = c.id 
+                  JOIN users u ON a.author_id = u.id 
+                  WHERE a.is_featured = 1 AND a.status = 'published' 
+                  ORDER BY a.published_at DESC LIMIT 1";
+$featured_result = $conn->query($featured_query);
+$featured_article = $featured_result->fetch_assoc();
+
+// Get secondary articles
+$secondary_query = "SELECT a.*, c.name as category_name, c.slug as category_slug 
+                    FROM articles a 
+                    JOIN categories c ON a.category_id = c.id 
+                    WHERE a.is_featured = 0 AND a.status = 'published' 
+                    ORDER BY a.published_at DESC LIMIT 2";
+$secondary_articles = $conn->query($secondary_query);
+
+// Get popular articles
+$popular_query = "SELECT a.*, c.name as category_name 
+                  FROM articles a 
+                  JOIN categories c ON a.category_id = c.id 
+                  WHERE a.status = 'published' 
+                  ORDER BY a.view_count DESC LIMIT 4";
+$popular_articles = $conn->query($popular_query);
+
+// Get banner advertisement
+$ad_query = "SELECT * FROM advertisements 
+             WHERE ad_type = 'banner' AND is_active = 1 
+             AND NOW() BETWEEN start_date AND end_date 
+             ORDER BY RAND() LIMIT 1";
+$ad_result = $conn->query($ad_query);
+$banner_ad = $ad_result->fetch_assoc();
+
+// Get sidebar advertisement
+$sidebar_ad_query = "SELECT * FROM advertisements 
+                    WHERE ad_type = 'sidebar' AND is_active = 1 
+                    AND NOW() BETWEEN start_date AND end_date 
+                    ORDER BY RAND() LIMIT 1";
+$sidebar_ad_result = $conn->query($sidebar_ad_query);
+$sidebar_ad = $sidebar_ad_result->fetch_assoc();
+
+// Time function to format "time ago"
+function time_elapsed_string($datetime)
+{
+    $now = new DateTime;
+    $ago = new DateTime($datetime);
+    $diff = $now->diff($ago);
+
+    if ($diff->y > 0)
+        return $diff->y . ' year' . ($diff->y > 1 ? 's' : '') . ' ago';
+    if ($diff->m > 0)
+        return $diff->m . ' month' . ($diff->m > 1 ? 's' : '') . ' ago';
+    if ($diff->d > 0)
+        return $diff->d . ' day' . ($diff->d > 1 ? 's' : '') . ' ago';
+    if ($diff->h > 0)
+        return $diff->h . ' hour' . ($diff->h > 1 ? 's' : '') . ' ago';
+    if ($diff->i > 0)
+        return $diff->i . ' minute' . ($diff->i > 1 ? 's' : '') . ' ago';
+    return 'just now';
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -37,7 +108,15 @@
                 <p class="tagline">The Voice of Our Times</p>
             </div>
             <div class="ad-space">
-                <div class="ad-placeholder">Advertisement</div>
+                <?php if ($banner_ad): ?>
+                    <a href="<?php echo htmlspecialchars($banner_ad['redirect_url']); ?>" target="_blank">
+                        <img src="<?php echo htmlspecialchars($banner_ad['image_path']); ?>"
+                            alt="<?php echo htmlspecialchars($banner_ad['name']); ?>"
+                            width="<?php echo $banner_ad['width']; ?>" height="<?php echo $banner_ad['height']; ?>">
+                    </a>
+                <?php else: ?>
+                    <div class="ad-placeholder">Advertisement</div>
+                <?php endif; ?>
             </div>
         </div>
     </header>
@@ -46,16 +125,12 @@
     <nav>
         <div class="container">
             <ul class="main-nav">
-                <li class="active"><a href="#">Home</a></li>
-                <li><a href="#">Politics</a></li>
-                <li><a href="#">Business</a></li>
-                <li><a href="#">Technology</a></li>
-                <li><a href="#">Health</a></li>
-                <li><a href="#">Science</a></li>
-                <li><a href="#">Sports</a></li>
-                <li><a href="#">Entertainment</a></li>
-                <li><a href="#">World</a></li>
-                <li><a href="#">Opinion</a></li>
+                <li class="active"><a href="index.php">Home</a></li>
+                <?php while ($category = $categories->fetch_assoc()): ?>
+                    <li><a href="category.php?slug=<?php echo htmlspecialchars($category['slug']); ?>">
+                            <?php echo htmlspecialchars($category['name']); ?>
+                        </a></li>
+                <?php endwhile; ?>
             </ul>
             <div class="search-box">
                 <input type="text" placeholder="Search...">
@@ -70,8 +145,11 @@
             <div class="breaking-title">Breaking News</div>
             <div class="breaking-content">
                 <marquee behavior="scroll" direction="left" onmouseover="this.stop();" onmouseout="this.start();">
-                    Global Summit on Climate Change Results in Historic Agreement • Tech Leaders Unveil Next Generation
-                    AI • Major Sports Championship Final Set for Weekend • Economic Report Shows Surprising Growth
+                    <?php if ($featured_article): ?>
+                        <?php echo htmlspecialchars($featured_article['title']); ?> •
+                    <?php endif; ?>
+                    Global Summit on Climate Change Results in Historic Agreement •
+                    Tech Leaders Unveil Next Generation AI • Major Sports Championship Final Set for Weekend
                 </marquee>
             </div>
         </div>
@@ -82,101 +160,87 @@
         <div class="container">
             <!-- Hero Section -->
             <section class="hero">
-                <div class="featured-article">
-                    <div class="featured-image">
-                        <img src="https://source.unsplash.com/random/800x450/?news,politics" alt="Featured Article">
+                <?php if ($featured_article): ?>
+                    <div class="featured-article">
+                        <div class="featured-image">
+                            <?php if ($featured_article['featured_image']): ?>
+                                <img src="<?php echo htmlspecialchars($featured_article['featured_image']); ?>"
+                                    alt="<?php echo htmlspecialchars($featured_article['title']); ?>">
+                            <?php else: ?>
+                                <img src="https://source.unsplash.com/random/800x450/?news,<?php echo htmlspecialchars($featured_article['category_slug']); ?>"
+                                    alt="Featured Article">
+                            <?php endif; ?>
+                        </div>
+                        <div class="featured-content">
+                            <span
+                                class="category"><?php echo htmlspecialchars($featured_article['category_name']); ?></span>
+                            <h2><?php echo htmlspecialchars($featured_article['title']); ?></h2>
+                            <p class="excerpt"><?php echo htmlspecialchars($featured_article['excerpt']); ?></p>
+                            <span class="time"><?php echo time_elapsed_string($featured_article['published_at']); ?></span>
+                            <span class="author">By <?php echo htmlspecialchars($featured_article['author_name']); ?></span>
+                        </div>
                     </div>
-                    <div class="featured-content">
-                        <span class="category">Politics</span>
-                        <h2>Landmark Legislation Passes After Marathon Debate in Congress</h2>
-                        <p class="excerpt">After months of deliberation and a 14-hour session, lawmakers have finally
-                            reached an agreement on the comprehensive reform package that addresses key issues facing
-                            the nation.</p>
-                        <span class="time">2 hours ago</span>
-                        <span class="author">By John Smith</span>
-                    </div>
-                </div>
+                <?php endif; ?>
+
                 <div class="secondary-articles">
-                    <article>
-                        <img src="https://source.unsplash.com/random/400x250/?business" alt="Business News">
-                        <span class="category">Business</span>
-                        <h3>Stock Markets Reach All-Time High After Fed Announcement</h3>
-                        <span class="time">3 hours ago</span>
-                    </article>
-                    <article>
-                        <img src="https://source.unsplash.com/random/400x250/?technology" alt="Technology News">
-                        <span class="category">Technology</span>
-                        <h3>Revolutionary New Device Promises to Transform Healthcare</h3>
-                        <span class="time">5 hours ago</span>
-                    </article>
+                    <?php while ($article = $secondary_articles->fetch_assoc()): ?>
+                        <article>
+                            <?php if ($article['featured_image']): ?>
+                                <img src="<?php echo htmlspecialchars($article['featured_image']); ?>"
+                                    alt="<?php echo htmlspecialchars($article['title']); ?>">
+                            <?php else: ?>
+                                <img src="https://source.unsplash.com/random/400x250/?<?php echo htmlspecialchars($article['category_slug']); ?>"
+                                    alt="<?php echo htmlspecialchars($article['category_name']); ?> News">
+                            <?php endif; ?>
+                            <span class="category"><?php echo htmlspecialchars($article['category_name']); ?></span>
+                            <h3><?php echo htmlspecialchars($article['title']); ?></h3>
+                            <span class="time"><?php echo time_elapsed_string($article['published_at']); ?></span>
+                        </article>
+                    <?php endwhile; ?>
                 </div>
             </section>
 
             <div class="content-wrapper">
                 <!-- Main News Section -->
                 <section class="main-news">
-                    <!-- News Category: World -->
-                    <div class="news-category">
-                        <div class="category-header">
-                            <h2>World News</h2>
-                            <a href="#" class="view-all">View All</a>
-                        </div>
-                        <div class="news-grid">
-                            <article class="news-item">
-                                <img src="https://source.unsplash.com/random/300x200/?world,global" alt="World News">
-                                <h3>International Space Station Celebrates 25 Years in Orbit</h3>
-                                <p>The orbiting laboratory marks quarter-century of continuous human presence in space,
-                                    hosting over 3,000 scientific experiments.</p>
-                                <span class="time">6 hours ago</span>
-                            </article>
-                            <article class="news-item">
-                                <img src="https://source.unsplash.com/random/300x200/?europe" alt="Europe News">
-                                <h3>European Union Unveils New Environmental Initiative</h3>
-                                <p>The ambitious program aims to reduce carbon emissions by 55% before 2030 through
-                                    coordinated efforts across member nations.</p>
-                                <span class="time">8 hours ago</span>
-                            </article>
-                            <article class="news-item">
-                                <img src="https://source.unsplash.com/random/300x200/?asia" alt="Asia News">
-                                <h3>Historic Trade Agreement Signed Between Asian Nations</h3>
-                                <p>The landmark deal removes tariffs on thousands of goods and creates the world's
-                                    largest free trade zone.</p>
-                                <span class="time">10 hours ago</span>
-                            </article>
-                        </div>
-                    </div>
+                    <?php
+                    // Get up to 2 categories with their articles
+                    $cat_articles_query = "SELECT c.id, c.name, c.slug FROM categories c 
+                                          WHERE c.is_active = 1 
+                                          ORDER BY c.display_order ASC LIMIT 2";
+                    $category_results = $conn->query($cat_articles_query);
 
-                    <!-- News Category: Technology -->
-                    <div class="news-category">
-                        <div class="category-header">
-                            <h2>Technology</h2>
-                            <a href="#" class="view-all">View All</a>
+                    while ($category = $category_results->fetch_assoc()):
+                        // Get articles for this category
+                        $articles_query = "SELECT * FROM articles 
+                                          WHERE category_id = {$category['id']} AND status = 'published' 
+                                          ORDER BY published_at DESC LIMIT 3";
+                        $articles_result = $conn->query($articles_query);
+                        ?>
+                        <div class="news-category">
+                            <div class="category-header">
+                                <h2><?php echo htmlspecialchars($category['name']); ?></h2>
+                                <a href="category.php?slug=<?php echo htmlspecialchars($category['slug']); ?>"
+                                    class="view-all">View All</a>
+                            </div>
+                            <div class="news-grid">
+                                <?php while ($article = $articles_result->fetch_assoc()): ?>
+                                    <article class="news-item">
+                                        <?php if ($article['featured_image']): ?>
+                                            <img src="<?php echo htmlspecialchars($article['featured_image']); ?>"
+                                                alt="<?php echo htmlspecialchars($article['title']); ?>">
+                                        <?php else: ?>
+                                            <img src="https://source.unsplash.com/random/300x200/?<?php echo htmlspecialchars($category['slug']); ?>"
+                                                alt="<?php echo htmlspecialchars($category['name']); ?> News">
+                                        <?php endif; ?>
+                                        <h3><?php echo htmlspecialchars($article['title']); ?></h3>
+                                        <p><?php echo htmlspecialchars($article['excerpt']); ?></p>
+                                        <span class="time"><?php echo time_elapsed_string($article['published_at']); ?></span>
+                                    </article>
+                                <?php endwhile; ?>
+                            </div>
                         </div>
-                        <div class="news-grid">
-                            <article class="news-item">
-                                <img src="https://source.unsplash.com/random/300x200/?tech" alt="Tech News">
-                                <h3>Next-Gen Smartphone Revealed with Groundbreaking Features</h3>
-                                <p>The latest flagship device introduces revolutionary camera technology and
-                                    unprecedented battery life.</p>
-                                <span class="time">4 hours ago</span>
-                            </article>
-                            <article class="news-item">
-                                <img src="https://source.unsplash.com/random/300x200/?ai" alt="AI News">
-                                <h3>AI Research Makes Breakthrough in Natural Language Processing</h3>
-                                <p>New algorithm demonstrates human-like understanding of contextual language nuances,
-                                    opening doors for improved digital assistants.</p>
-                                <span class="time">7 hours ago</span>
-                            </article>
-                            <article class="news-item">
-                                <img src="https://source.unsplash.com/random/300x200/?cybersecurity"
-                                    alt="Cybersecurity News">
-                                <h3>Major Cybersecurity Vulnerability Discovered in Popular Software</h3>
-                                <p>Experts urge immediate updates as researchers find critical flaw that could affect
-                                    millions of users worldwide.</p>
-                                <span class="time">9 hours ago</span>
-                            </article>
-                        </div>
-                    </div>
+                    <?php endwhile; ?>
                 </section>
 
                 <!-- Sidebar -->
@@ -185,34 +249,21 @@
                     <div class="sidebar-section popular-news">
                         <h3>Popular News</h3>
                         <div class="popular-list">
-                            <article class="popular-item">
-                                <img src="https://source.unsplash.com/random/100x100/?trending" alt="Popular News">
-                                <div>
-                                    <h4>Cultural Festival Attracts Record Number of Visitors</h4>
-                                    <span class="time">1 day ago</span>
-                                </div>
-                            </article>
-                            <article class="popular-item">
-                                <img src="https://source.unsplash.com/random/100x100/?popular" alt="Popular News">
-                                <div>
-                                    <h4>Scientists Discover New Species in Deep Ocean Expedition</h4>
-                                    <span class="time">2 days ago</span>
-                                </div>
-                            </article>
-                            <article class="popular-item">
-                                <img src="https://source.unsplash.com/random/100x100/?viral" alt="Popular News">
-                                <div>
-                                    <h4>Historic Building Restored After Decades of Neglect</h4>
-                                    <span class="time">3 days ago</span>
-                                </div>
-                            </article>
-                            <article class="popular-item">
-                                <img src="https://source.unsplash.com/random/100x100/?famous" alt="Popular News">
-                                <div>
-                                    <h4>Award-Winning Film Director Announces Next Project</h4>
-                                    <span class="time">4 days ago</span>
-                                </div>
-                            </article>
+                            <?php while ($article = $popular_articles->fetch_assoc()): ?>
+                                <article class="popular-item">
+                                    <?php if ($article['featured_image']): ?>
+                                        <img src="<?php echo htmlspecialchars($article['featured_image']); ?>"
+                                            alt="<?php echo htmlspecialchars($article['title']); ?>">
+                                    <?php else: ?>
+                                        <img src="https://source.unsplash.com/random/100x100/?trending" alt="Popular News">
+                                    <?php endif; ?>
+                                    <div>
+                                        <h4><?php echo htmlspecialchars($article['title']); ?></h4>
+                                        <span
+                                            class="time"><?php echo time_elapsed_string($article['published_at']); ?></span>
+                                    </div>
+                                </article>
+                            <?php endwhile; ?>
                         </div>
                     </div>
 
@@ -228,7 +279,16 @@
 
                     <!-- Advertisement -->
                     <div class="sidebar-section ad">
-                        <div class="sidebar-ad">Advertisement</div>
+                        <?php if ($sidebar_ad): ?>
+                            <a href="<?php echo htmlspecialchars($sidebar_ad['redirect_url']); ?>" target="_blank">
+                                <img src="<?php echo htmlspecialchars($sidebar_ad['image_path']); ?>"
+                                    alt="<?php echo htmlspecialchars($sidebar_ad['name']); ?>"
+                                    width="<?php echo $sidebar_ad['width']; ?>"
+                                    height="<?php echo $sidebar_ad['height']; ?>">
+                            </a>
+                        <?php else: ?>
+                            <div class="sidebar-ad">Advertisement</div>
+                        <?php endif; ?>
                     </div>
                 </aside>
             </div>
@@ -264,12 +324,15 @@
                 <div class="footer-section categories">
                     <h3>Categories</h3>
                     <ul>
-                        <li><a href="#">Politics</a></li>
-                        <li><a href="#">Business</a></li>
-                        <li><a href="#">Technology</a></li>
-                        <li><a href="#">Health</a></li>
-                        <li><a href="#">Science</a></li>
-                        <li><a href="#">Sports</a></li>
+                        <?php
+                        // Reset categories query
+                        $categories = $conn->query($cat_query);
+                        while ($category = $categories->fetch_assoc()):
+                            ?>
+                            <li><a href="category.php?slug=<?php echo htmlspecialchars($category['slug']); ?>">
+                                    <?php echo htmlspecialchars($category['name']); ?>
+                                </a></li>
+                        <?php endwhile; ?>
                     </ul>
                 </div>
 
