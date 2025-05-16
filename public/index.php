@@ -17,21 +17,40 @@ $featured_query = "SELECT a.*, c.name as category_name, c.slug as category_slug,
 $featured_result = $conn->query($featured_query);
 $featured_article = $featured_result->fetch_assoc();
 
-// Get secondary articles
-$secondary_query = "SELECT a.*, c.name as category_name, c.slug as category_slug 
-                    FROM articles a 
-                    JOIN categories c ON a.category_id = c.id 
-                    WHERE a.is_featured = 0 AND a.status = 'published' 
-                    ORDER BY a.published_at DESC LIMIT 2";
+// Get secondary featured articles
+$secondary_query = "SELECT a.*, c.name as category_name, c.slug as category_slug, 
+                   CONCAT(u.first_name, ' ', u.last_name) as author_name 
+                   FROM articles a 
+                   JOIN categories c ON a.category_id = c.id 
+                   JOIN users u ON a.author_id = u.id 
+                   WHERE a.is_featured = 0 AND a.status = 'published' 
+                   ORDER BY a.published_at DESC LIMIT 5";
 $secondary_articles = $conn->query($secondary_query);
 
 // Get popular articles
-$popular_query = "SELECT a.*, c.name as category_name 
+$popular_query = "SELECT a.*, c.name as category_name, c.slug as category_slug 
                   FROM articles a 
                   JOIN categories c ON a.category_id = c.id 
                   WHERE a.status = 'published' 
-                  ORDER BY a.view_count DESC LIMIT 4";
+                  ORDER BY a.view_count DESC LIMIT 5";
 $popular_articles = $conn->query($popular_query);
+
+// Get articles by category
+$cat_articles = [];
+$categories_list_query = "SELECT id, name, slug FROM categories WHERE is_active = 1 ORDER BY display_order ASC LIMIT 6";
+$categories_list = $conn->query($categories_list_query);
+
+while ($category = $categories_list->fetch_assoc()) {
+    $cat_articles_query = "SELECT a.*, CONCAT(u.first_name, ' ', u.last_name) as author_name 
+                          FROM articles a 
+                          JOIN users u ON a.author_id = u.id 
+                          WHERE a.category_id = {$category['id']} AND a.status = 'published' 
+                          ORDER BY a.published_at DESC LIMIT 4";
+    $cat_articles[$category['slug']] = [
+        'info' => $category,
+        'articles' => $conn->query($cat_articles_query)
+    ];
+}
 
 // Get banner advertisement
 $ad_query = "SELECT * FROM advertisements 
@@ -68,6 +87,31 @@ function time_elapsed_string($datetime)
         return $diff->i . ' minute' . ($diff->i > 1 ? 's' : '') . ' ago';
     return 'just now';
 }
+
+// Get category class for styling
+function getCategoryClass($categoryName)
+{
+    $name = strtolower($categoryName);
+    if (strpos($name, 'politic') !== false)
+        return 'category-politics';
+    if (strpos($name, 'sport') !== false)
+        return 'category-sports';
+    if (strpos($name, 'entertain') !== false)
+        return 'category-entertainment';
+    if (strpos($name, 'business') !== false)
+        return 'category-business';
+    if (strpos($name, 'tech') !== false)
+        return 'category-tech';
+    if (strpos($name, 'health') !== false)
+        return 'category-health';
+    if (strpos($name, 'science') !== false)
+        return 'category-science';
+    if (strpos($name, 'world') !== false)
+        return 'category-world';
+    if (strpos($name, 'lifestyle') !== false)
+        return 'category-lifestyle';
+    return '';
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -79,7 +123,7 @@ function time_elapsed_string($datetime)
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link
-        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Source+Sans+Pro:wght@300;400;600;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&family=Open+Sans:wght@400;600;700&display=swap"
         rel="stylesheet">
 </head>
 
@@ -104,9 +148,10 @@ function time_elapsed_string($datetime)
     <header>
         <div class="container">
             <div class="logo">
-                <h1>Echoes of Today</h1>
+                <h1>ECHOES TODAY</h1>
                 <p class="tagline">The Voice of Our Times</p>
             </div>
+            <div class="header-ad"></div>
             <div class="ad-space">
                 <?php if ($banner_ad): ?>
                     <a href="<?php echo htmlspecialchars($banner_ad['redirect_url']); ?>" target="_blank">
@@ -126,11 +171,44 @@ function time_elapsed_string($datetime)
         <div class="container">
             <ul class="main-nav">
                 <li class="active"><a href="index.php">Home</a></li>
-                <?php while ($category = $categories->fetch_assoc()): ?>
-                    <li><a href="category.php?slug=<?php echo htmlspecialchars($category['slug']); ?>">
-                            <?php echo htmlspecialchars($category['name']); ?>
-                        </a></li>
-                <?php endwhile; ?>
+                <?php
+                // Reset categories query
+                $categories = $conn->query($cat_query);
+                $count = 0;
+                $dropdown_items = array();
+
+                // First collect all categories
+                while ($category = $categories->fetch_assoc()) {
+                    if ($count < 6) {
+                        // First 6 categories go directly in the nav
+                        ?>
+                        <li><a href="category.php?slug=<?php echo htmlspecialchars($category['slug']); ?>">
+                                <?php echo htmlspecialchars($category['name']); ?>
+                            </a></li>
+                        <?php
+                    } else {
+                        // Store the rest for the dropdown
+                        $dropdown_items[] = $category;
+                    }
+                    $count++;
+                }
+
+                // If we have extra categories, add the dropdown
+                if (!empty($dropdown_items)) {
+                    ?>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle">More <i class="fas fa-caret-down"></i></a>
+                        <ul class="dropdown-content">
+                            <?php foreach ($dropdown_items as $item) { ?>
+                                <li><a href="category.php?slug=<?php echo htmlspecialchars($item['slug']); ?>">
+                                        <?php echo htmlspecialchars($item['name']); ?>
+                                    </a></li>
+                            <?php } ?>
+                        </ul>
+                    </li>
+                    <?php
+                }
+                ?>
             </ul>
             <div class="search-box">
                 <input type="text" placeholder="Search...">
@@ -158,11 +236,11 @@ function time_elapsed_string($datetime)
     <!-- Main Content -->
     <main>
         <div class="container">
-            <!-- Hero Section -->
-            <section class="hero">
+            <!-- Front Page Grid -->
+            <section class="front-page-grid">
                 <?php if ($featured_article): ?>
-                    <div class="featured-article">
-                        <div class="featured-image">
+                    <div class="main-story">
+                        <div class="story-image">
                             <?php if ($featured_article['featured_image']): ?>
                                 <img src="<?php echo htmlspecialchars($featured_article['featured_image']); ?>"
                                     alt="<?php echo htmlspecialchars($featured_article['title']); ?>">
@@ -171,124 +249,169 @@ function time_elapsed_string($datetime)
                                     alt="Featured Article">
                             <?php endif; ?>
                         </div>
-                        <div class="featured-content">
+                        <div class="story-content">
                             <span
-                                class="category"><?php echo htmlspecialchars($featured_article['category_name']); ?></span>
+                                class="category-label <?php echo getCategoryClass($featured_article['category_name']); ?>">
+                                <?php echo htmlspecialchars($featured_article['category_name']); ?>
+                            </span>
                             <h2><?php echo htmlspecialchars($featured_article['title']); ?></h2>
-                            <p class="excerpt"><?php echo htmlspecialchars($featured_article['excerpt']); ?></p>
-                            <span class="time"><?php echo time_elapsed_string($featured_article['published_at']); ?></span>
-                            <span class="author">By <?php echo htmlspecialchars($featured_article['author_name']); ?></span>
+                            <p class="story-excerpt"><?php echo htmlspecialchars($featured_article['excerpt']); ?></p>
+                            <div class="meta-info">
+                                <span
+                                    class="time"><?php echo time_elapsed_string($featured_article['published_at']); ?></span>
+                                <span class="author">By
+                                    <?php echo htmlspecialchars($featured_article['author_name']); ?></span>
+                            </div>
                         </div>
                     </div>
                 <?php endif; ?>
 
-                <div class="secondary-articles">
-                    <?php while ($article = $secondary_articles->fetch_assoc()): ?>
-                        <article>
-                            <?php if ($article['featured_image']): ?>
-                                <img src="<?php echo htmlspecialchars($article['featured_image']); ?>"
-                                    alt="<?php echo htmlspecialchars($article['title']); ?>">
-                            <?php else: ?>
-                                <img src="https://source.unsplash.com/random/400x250/?<?php echo htmlspecialchars($article['category_slug']); ?>"
-                                    alt="<?php echo htmlspecialchars($article['category_name']); ?> News">
-                            <?php endif; ?>
-                            <span class="category"><?php echo htmlspecialchars($article['category_name']); ?></span>
-                            <h3><?php echo htmlspecialchars($article['title']); ?></h3>
-                            <span class="time"><?php echo time_elapsed_string($article['published_at']); ?></span>
-                        </article>
-                    <?php endwhile; ?>
-                </div>
-            </section>
-
-            <div class="content-wrapper">
-                <!-- Main News Section -->
-                <section class="main-news">
-                    <?php
-                    // Get up to 2 categories with their articles
-                    $cat_articles_query = "SELECT c.id, c.name, c.slug FROM categories c 
-                                          WHERE c.is_active = 1 
-                                          ORDER BY c.display_order ASC LIMIT 2";
-                    $category_results = $conn->query($cat_articles_query);
-
-                    while ($category = $category_results->fetch_assoc()):
-                        // Get articles for this category
-                        $articles_query = "SELECT * FROM articles 
-                                          WHERE category_id = {$category['id']} AND status = 'published' 
-                                          ORDER BY published_at DESC LIMIT 3";
-                        $articles_result = $conn->query($articles_query);
-                        ?>
-                        <div class="news-category">
-                            <div class="category-header">
-                                <h2><?php echo htmlspecialchars($category['name']); ?></h2>
-                                <a href="category.php?slug=<?php echo htmlspecialchars($category['slug']); ?>"
-                                    class="view-all">View All</a>
+                <?php
+                $count = 0;
+                while ($article = $secondary_articles->fetch_assoc()) {
+                    if ($count == 0): ?>
+                        <div class="secondary-story">
+                            <div class="story-image">
+                                <?php if ($article['featured_image']): ?>
+                                    <img src="<?php echo htmlspecialchars($article['featured_image']); ?>"
+                                        alt="<?php echo htmlspecialchars($article['title']); ?>">
+                                <?php else: ?>
+                                    <img src="https://source.unsplash.com/random/400x250/?<?php echo htmlspecialchars($article['category_slug']); ?>"
+                                        alt="<?php echo htmlspecialchars($article['category_name']); ?> News">
+                                <?php endif; ?>
                             </div>
-                            <div class="news-grid">
-                                <?php while ($article = $articles_result->fetch_assoc()): ?>
-                                    <article class="news-item">
-                                        <?php if ($article['featured_image']): ?>
-                                            <img src="<?php echo htmlspecialchars($article['featured_image']); ?>"
-                                                alt="<?php echo htmlspecialchars($article['title']); ?>">
-                                        <?php else: ?>
-                                            <img src="https://source.unsplash.com/random/300x200/?<?php echo htmlspecialchars($category['slug']); ?>"
-                                                alt="<?php echo htmlspecialchars($category['name']); ?> News">
-                                        <?php endif; ?>
-                                        <h3><?php echo htmlspecialchars($article['title']); ?></h3>
-                                        <p><?php echo htmlspecialchars($article['excerpt']); ?></p>
-                                        <span class="time"><?php echo time_elapsed_string($article['published_at']); ?></span>
-                                    </article>
-                                <?php endwhile; ?>
+                            <div class="story-content">
+                                <span class="category-label <?php echo getCategoryClass($article['category_name']); ?>">
+                                    <?php echo htmlspecialchars($article['category_name']); ?>
+                                </span>
+                                <h3><?php echo htmlspecialchars($article['title']); ?></h3>
+                                <p class="story-excerpt"><?php echo htmlspecialchars($article['excerpt']); ?></p>
+                                <div class="meta-info">
+                                    <span class="time"><?php echo time_elapsed_string($article['published_at']); ?></span>
+                                    <span class="author">By <?php echo htmlspecialchars($article['author_name']); ?></span>
+                                </div>
                             </div>
                         </div>
-                    <?php endwhile; ?>
-                </section>
+                    <?php else: ?>
+                        <div class="small-story">
+                            <div class="story-image">
+                                <?php if ($article['featured_image']): ?>
+                                    <img src="<?php echo htmlspecialchars($article['featured_image']); ?>"
+                                        alt="<?php echo htmlspecialchars($article['title']); ?>">
+                                <?php else: ?>
+                                    <img src="https://source.unsplash.com/random/300x200/?<?php echo htmlspecialchars($article['category_slug']); ?>"
+                                        alt="<?php echo htmlspecialchars($article['category_name']); ?> News">
+                                <?php endif; ?>
+                            </div>
+                            <div class="story-content">
+                                <span class="category-label <?php echo getCategoryClass($article['category_name']); ?>">
+                                    <?php echo htmlspecialchars($article['category_name']); ?>
+                                </span>
+                                <h4><?php echo htmlspecialchars($article['title']); ?></h4>
+                                <div class="meta-info">
+                                    <span class="time"><?php echo time_elapsed_string($article['published_at']); ?></span>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endif;
+                    $count++;
+                } ?>
+            </section>
+
+            <div class="two-column-layout">
+                <div class="main-content">
+                    <!-- Category News Sections -->
+                    <?php foreach ($cat_articles as $slug => $category_data): ?>
+                        <section class="news-section">
+                            <div class="section-header">
+                                <h2><?php echo htmlspecialchars($category_data['info']['name']); ?></h2>
+                                <a href="category.php?slug=<?php echo htmlspecialchars($slug); ?>" class="view-all">View
+                                    All</a>
+                            </div>
+                            <div class="news-grid">
+                                <?php while ($article = $category_data['articles']->fetch_assoc()): ?>
+                                    <div class="news-item">
+                                        <div class="news-item-image">
+                                            <?php if ($article['featured_image']): ?>
+                                                <img src="<?php echo htmlspecialchars($article['featured_image']); ?>"
+                                                    alt="<?php echo htmlspecialchars($article['title']); ?>">
+                                            <?php else: ?>
+                                                <img src="https://source.unsplash.com/random/300x200/?<?php echo htmlspecialchars($slug); ?>"
+                                                    alt="<?php echo htmlspecialchars($category_data['info']['name']); ?> News">
+                                            <?php endif; ?>
+                                        </div>
+                                        <div class="news-item-content">
+                                            <h3><?php echo htmlspecialchars($article['title']); ?></h3>
+                                            <div class="meta-info">
+                                                <span
+                                                    class="time"><?php echo time_elapsed_string($article['published_at']); ?></span>
+                                                <span
+                                                    class="author"><?php echo htmlspecialchars($article['author_name']); ?></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <?php endwhile; ?>
+                            </div>
+                        </section>
+                    <?php endforeach; ?>
+                </div>
 
                 <!-- Sidebar -->
                 <aside class="sidebar">
                     <!-- Popular News -->
-                    <div class="sidebar-section popular-news">
-                        <h3>Popular News</h3>
-                        <div class="popular-list">
+                    <div class="sidebar-section">
+                        <div class="sidebar-header">Most Read</div>
+                        <div class="sidebar-content">
                             <?php while ($article = $popular_articles->fetch_assoc()): ?>
-                                <article class="popular-item">
-                                    <?php if ($article['featured_image']): ?>
-                                        <img src="<?php echo htmlspecialchars($article['featured_image']); ?>"
-                                            alt="<?php echo htmlspecialchars($article['title']); ?>">
-                                    <?php else: ?>
-                                        <img src="https://source.unsplash.com/random/100x100/?trending" alt="Popular News">
-                                    <?php endif; ?>
-                                    <div>
+                                <div class="popular-item">
+                                    <div class="popular-item-image">
+                                        <?php if ($article['featured_image']): ?>
+                                            <img src="<?php echo htmlspecialchars($article['featured_image']); ?>"
+                                                alt="<?php echo htmlspecialchars($article['title']); ?>">
+                                        <?php else: ?>
+                                            <img src="https://source.unsplash.com/random/100x100/?trending" alt="Popular News">
+                                        <?php endif; ?>
+                                    </div>
+                                    <div class="popular-item-content">
                                         <h4><?php echo htmlspecialchars($article['title']); ?></h4>
                                         <span
                                             class="time"><?php echo time_elapsed_string($article['published_at']); ?></span>
+                                        <span class="views"><i class="fas fa-eye"></i>
+                                            <?php echo number_format($article['view_count']); ?></span>
                                     </div>
-                                </article>
+                                </div>
                             <?php endwhile; ?>
                         </div>
                     </div>
 
                     <!-- Newsletter -->
-                    <div class="sidebar-section newsletter">
-                        <h3>Subscribe to Our Newsletter</h3>
-                        <p>Stay updated with our latest news directly in your inbox.</p>
-                        <form>
-                            <input type="email" placeholder="Your Email Address" required>
-                            <button type="submit">Subscribe</button>
-                        </form>
+                    <div class="sidebar-section">
+                        <div class="sidebar-header">Newsletter</div>
+                        <div class="sidebar-content newsletter">
+                            <p>Stay updated with our latest news directly in your inbox.</p>
+                            <form>
+                                <input type="email" placeholder="Your Email Address" required>
+                                <button type="submit">Subscribe</button>
+                            </form>
+                        </div>
                     </div>
 
                     <!-- Advertisement -->
-                    <div class="sidebar-section ad">
-                        <?php if ($sidebar_ad): ?>
-                            <a href="<?php echo htmlspecialchars($sidebar_ad['redirect_url']); ?>" target="_blank">
-                                <img src="<?php echo htmlspecialchars($sidebar_ad['image_path']); ?>"
-                                    alt="<?php echo htmlspecialchars($sidebar_ad['name']); ?>"
-                                    width="<?php echo $sidebar_ad['width']; ?>"
-                                    height="<?php echo $sidebar_ad['height']; ?>">
-                            </a>
-                        <?php else: ?>
-                            <div class="sidebar-ad">Advertisement</div>
-                        <?php endif; ?>
+                    <div class="sidebar-section">
+                        <div class="sidebar-header">Advertisement</div>
+                        <div class="sidebar-content">
+                            <?php if ($sidebar_ad): ?>
+                                <a href="<?php echo htmlspecialchars($sidebar_ad['redirect_url']); ?>" target="_blank"
+                                    class="sidebar-ad">
+                                    <img src="<?php echo htmlspecialchars($sidebar_ad['image_path']); ?>"
+                                        alt="<?php echo htmlspecialchars($sidebar_ad['name']); ?>"
+                                        width="<?php echo $sidebar_ad['width']; ?>"
+                                        height="<?php echo $sidebar_ad['height']; ?>">
+                                </a>
+                            <?php else: ?>
+                                <div class="sidebar-ad">Advertisement</div>
+                            <?php endif; ?>
+                        </div>
                     </div>
                 </aside>
             </div>

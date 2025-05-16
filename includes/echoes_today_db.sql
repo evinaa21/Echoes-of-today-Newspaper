@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 16, 2025 at 10:06 AM
+-- Generation Time: May 16, 2025 at 11:06 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.0.30
 
@@ -82,8 +82,26 @@ CREATE TABLE `articles` (
 
 INSERT INTO `articles` (`id`, `title`, `slug`, `content`, `excerpt`, `featured_image`, `author_id`, `category_id`, `status`, `is_featured`, `view_count`, `published_at`, `created_at`, `updated_at`) VALUES
 (7, 'New Healthcare Bill Passes Senate Vote', 'healthcare-bill-passes-senate', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam ac magna vel urna efficitur efficitur.', 'Senate approves controversial healthcare legislation with narrow margin', 'images/articles/healthcare-bill.jpg', 2, 1, 'published', 1, 1245, '2025-05-16 08:03:53', '2025-05-16 08:03:53', '2025-05-16 08:03:53'),
-(8, 'Local Team Wins Championship', 'local-team-championship-win', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam ac magna vel urna efficitur efficitur.', 'Underdogs triumph in final match of the season', 'images/articles/championship.jpg', 3, 2, 'published', 0, 867, '2025-05-16 08:03:53', '2025-05-16 08:03:53', '2025-05-16 08:03:53'),
-(9, 'Summer Blockbuster Breaks Box Office Records', 'summer-blockbuster-records', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam ac magna vel urna efficitur efficitur.', 'New action film exceeds expectations with $500M opening weekend', 'images/articles/blockbuster.jpg', 2, 3, 'pending_review', 0, 0, NULL, '2025-05-16 08:03:53', '2025-05-16 08:03:53');
+(8, 'Local Team Wins Championship', 'local-team-championship-win', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam ac magna vel urna efficitur efficitur.', 'Underdogs triumph in final match of the season', 'images/articles/championship.jpg', 3, 2, 'published', 0, 400000, '2025-05-16 08:03:53', '2025-05-16 08:03:53', '2025-05-16 08:36:48'),
+(9, 'Summer Blockbuster Breaks Box Office Records', 'summer-blockbuster-records', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam ac magna vel urna efficitur efficitur.', 'New action film exceeds expectations with $500M opening weekend', 'images/articles/blockbuster.jpg', 2, 3, 'pending_review', 0, 0, NULL, '2025-05-16 08:03:53', '2025-05-16 08:03:53'),
+(42, 'Breakthrough in Quantum Computing Achieved', 'quantum-computing-breakthrough', 'Scientists have achieved a major breakthrough in quantum computing technology that could revolutionize data processing capabilities. The new quantum processor demonstrated unprecedented stability and error correction rates.', 'Research team demonstrates stable qubit operation opening doors for practical quantum applications', 'images/articles/quantum-computing.jpg', 2, 7, 'published', 1, 3422, '2025-05-16 09:03:35', '2025-05-16 09:03:35', '2025-05-16 09:03:35'),
+(43, 'New Smartphone Launch Breaks Pre-order Records', 'smartphone-launch-records', 'The latest flagship smartphone has broken all previous pre-order records within the first 24 hours of announcement. Experts attribute this success to the revolutionary camera system and extended battery life.', 'Tech giant sees unprecedented demand for latest device with advanced AI features', 'images/articles/new-smartphone.jpg', 3, 7, 'published', 0, 1576, '2025-05-16 09:03:35', '2025-05-16 09:03:35', '2025-05-16 09:03:35'),
+(44, 'New Study Links Gut Health to Improved Immunity', 'gut-health-immunity-study', 'A groundbreaking study published in a leading medical journal has established a clear correlation between gut microbiome diversity and enhanced immune response in adults of all ages.', 'Research confirms importance of dietary diversity for stronger immune system', 'images/articles/gut-health.jpg', 2, 8, 'published', 0, 945, '2025-05-16 09:03:35', '2025-05-16 09:03:35', '2025-05-16 09:03:35'),
+(45, 'Revolutionary Cancer Treatment Shows Promise in Clinical Trials', 'cancer-treatment-trials', 'A novel approach to treating aggressive forms of cancer has shown remarkable results in phase III clinical trials, with over 70% of participants showing significant tumor reduction within weeks.', 'Targeted therapy could change standard of care for previously untreatable cases', 'images/articles/cancer-treatment.jpg', 3, 8, 'published', 0, 1865, '2025-05-16 09:03:35', '2025-05-16 09:03:35', '2025-05-16 09:03:35'),
+(46, 'Global Market Volatility Following Central Bank Announcement', 'market-volatility-central-bank', 'Markets worldwide experienced significant fluctuations after the unexpected interest rate decision announced yesterday. Analysts are divided on the long-term implications for economic growth.', 'Investors scramble to adjust portfolios amid uncertainty in financial markets', 'images/articles/market-volatility.jpg', 2, 9, 'published', 0, 1254, '2025-05-16 09:03:35', '2025-05-16 09:03:35', '2025-05-16 09:03:35'),
+(47, 'Tech Merger Creates New Industry Giant', 'tech-merger-industry-giant', 'Two leading technology companies have announced a $45 billion merger agreement, creating what analysts are calling a new behemoth in the cloud computing and AI sectors.', 'Historic deal reshapes competitive landscape in multiple technology markets', 'images/articles/tech-merger.jpg', 1, 9, 'published', 1, 2567, '2025-05-16 09:03:35', '2025-05-16 09:03:35', '2025-05-16 09:03:35'),
+(48, 'Mars Rover Makes Surprising Discovery', 'mars-rover-discovery', 'The latest Mars exploration mission has transmitted data suggesting the presence of complex organic compounds just below the planet\'s surface, raising new questions about the possibility of ancient microbial life.', 'NASA scientists analyzing unexpected findings from latest soil samples', 'images/articles/mars-rover.jpg', 3, 10, 'published', 0, 3120, '2025-05-16 09:03:35', '2025-05-16 09:03:35', '2025-05-16 09:03:35'),
+(49, 'Climate Scientists Develop Improved Prediction Models', 'climate-prediction-models', 'A team of international researchers has unveiled a new generation of climate prediction models with significantly enhanced accuracy for regional forecasting, particularly for extreme weather events.', 'Advanced AI integration allows for more precise local climate projections', 'images/articles/climate-models.jpg', 2, 10, 'published', 0, 876, '2025-05-16 09:03:35', '2025-05-16 09:03:35', '2025-05-16 09:03:35'),
+(50, 'International Summit Addresses Global Supply Chain Crisis', 'global-supply-chain-summit', 'Leaders from over 40 countries gathered to address ongoing disruptions in global supply chains, proposing a coordinated framework for building more resilient international trade systems.', 'Nations agree on multilateral approach to prevent future logistics breakdowns', 'images/articles/supply-chain-summit.jpg', 1, 11, 'published', 0, 1432, '2025-05-16 09:03:35', '2025-05-16 09:03:35', '2025-05-16 09:03:35'),
+(51, 'Diplomatic Breakthrough in Regional Conflict Negotiations', 'diplomatic-breakthrough', 'After months of stalled talks, negotiators have announced a significant breakthrough in the peace process, with both sides agreeing to a framework for addressing longstanding territorial disputes.', 'Ceasefire agreement brings hope for lasting stability in conflict zone', 'images/articles/diplomacy.jpg', 2, 11, 'published', 1, 1987, '2025-05-16 09:03:35', '2025-05-16 09:03:35', '2025-05-16 09:03:35'),
+(52, 'Sustainable Fashion Takes Center Stage at Annual Design Awards', 'sustainable-fashion-awards', 'This year\'s prestigious design awards highlighted a dramatic shift toward sustainable practices, with recycled materials and ethical production processes dominating the winning collections.', 'Industry embraces eco-friendly innovation as consumers demand accountability', 'images/articles/sustainable-fashion.jpg', 3, 12, 'published', 0, 754, '2025-05-16 09:03:35', '2025-05-16 09:03:35', '2025-05-16 09:03:35'),
+(53, 'Remote Work Revolution Reshaping Urban Living Trends', 'remote-work-urban-living', 'The widespread adoption of flexible work arrangements is driving significant changes in housing preferences, with many urbanites seeking homes with dedicated office spaces or relocating to smaller communities.', 'Real estate experts note shift in priorities for post-pandemic home buyers', 'images/articles/remote-work.jpg', 2, 12, 'published', 0, 1098, '2025-05-16 09:03:35', '2025-05-16 09:03:35', '2025-05-16 09:03:35'),
+(54, 'Election Polls Show Surprising Shift in Key Demographics', 'election-polls-demographic-shift', 'Recent polling data reveals unexpected changes in voting patterns among several key demographics that could significantly impact the upcoming election results in numerous swing districts.', 'Analysts scrambling to explain voter preference changes in traditionally consistent groups', 'images/articles/election-polls.jpg', 2, 1, 'published', 0, 1876, '2025-05-16 09:03:35', '2025-05-16 09:03:35', '2025-05-16 09:03:35'),
+(55, 'New Environmental Regulation Framework Announced', 'environmental-regulation-framework', 'The government has unveiled a comprehensive set of environmental regulations aimed at reducing carbon emissions by 35% within the next decade while promoting sustainable industrial practices.', 'Business leaders and environmental groups offer mixed reactions to ambitious new policies', 'images/articles/environment-policy.jpg', 1, 1, 'published', 0, 1350, '2025-05-16 09:03:35', '2025-05-16 09:03:35', '2025-05-16 09:03:35'),
+(56, 'Underdog Team Advances to Semi-Finals in Dramatic Fashion', 'underdog-team-semifinals', 'In what sports commentators are calling one of the biggest upsets of the season, the underdog team secured their place in the semi-finals with a last-minute victory against the tournament favorites.', 'Last-second goal caps remarkable comeback in quarter-final thriller', 'images/articles/underdog-victory.jpg', 3, 2, 'published', 0, 2345, '2025-05-16 09:03:35', '2025-05-16 09:03:35', '2025-05-16 09:03:35'),
+(57, 'Star Athlete Announces Retirement After Legendary Career', 'athlete-retirement-announcement', 'After fifteen remarkable years that included six championships and countless records, the beloved sports icon has announced plans to retire at the end of the current season.', 'Fans and fellow competitors pay tribute to one of the greatest players of a generation', 'images/articles/athlete-retirement.jpg', 3, 2, 'published', 0, 2890, '2025-05-16 09:03:35', '2025-05-16 09:03:35', '2025-05-16 09:03:35'),
+(58, 'Award-Winning Director Announces Ambitious New Project', 'director-new-project', 'The acclaimed filmmaker has revealed details about an upcoming production that will push technological boundaries while exploring complex social themes in a post-pandemic world.', 'Industry insiders predict groundbreaking visual techniques and narrative innovation', 'images/articles/new-film-project.jpg', 1, 3, 'published', 0, 978, '2025-05-16 09:03:35', '2025-05-16 09:03:35', '2025-05-16 09:03:35'),
+(59, 'Music Festival Returns With Star-Studded Lineup', 'music-festival-returns', 'After a three-year hiatus, the popular music festival has announced its return with an impressive roster of performers spanning multiple genres, from established legends to breakthrough artists.', 'Ticket sales break records as music fans eagerly await the three-day event', 'images/articles/music-festival.jpg', 2, 3, 'published', 0, 1456, '2025-05-16 09:03:35', '2025-05-16 09:03:35', '2025-05-16 09:03:35');
 
 -- --------------------------------------------------------
 
@@ -118,7 +136,13 @@ CREATE TABLE `article_tags` (
 INSERT INTO `article_tags` (`article_id`, `tag_id`) VALUES
 (7, 1),
 (8, 2),
-(9, 3);
+(9, 3),
+(42, 9),
+(44, 5),
+(46, 7),
+(48, 8),
+(49, 6),
+(52, 10);
 
 -- --------------------------------------------------------
 
@@ -144,7 +168,13 @@ CREATE TABLE `categories` (
 INSERT INTO `categories` (`id`, `name`, `slug`, `description`, `is_active`, `display_order`, `created_at`, `updated_at`) VALUES
 (1, 'Politics', 'politics', 'Latest political news and analysis', 1, 1, '2025-05-16 08:00:51', '2025-05-16 08:00:51'),
 (2, 'Sports', 'sports', 'Coverage of local and international sporting events', 1, 2, '2025-05-16 08:00:51', '2025-05-16 08:00:51'),
-(3, 'Entertainment', 'entertainment', 'Celebrity news, movie reviews, and cultural events', 1, 3, '2025-05-16 08:00:51', '2025-05-16 08:00:51');
+(3, 'Entertainment', 'entertainment', 'Celebrity news, movie reviews, and cultural events', 1, 3, '2025-05-16 08:00:51', '2025-05-16 08:00:51'),
+(7, 'Technology', 'technology', 'Latest tech innovations, gadget reviews, and digital trends', 1, 4, '2025-05-16 08:54:09', '2025-05-16 08:54:09'),
+(8, 'Health', 'health', 'Medical breakthroughs, wellness tips, and health advisories', 1, 5, '2025-05-16 08:54:09', '2025-05-16 08:54:09'),
+(9, 'Business', 'business', 'Financial news, market analysis, and corporate updates', 1, 6, '2025-05-16 08:54:09', '2025-05-16 08:54:09'),
+(10, 'Science', 'science', 'Scientific discoveries, research breakthroughs, and space exploration', 1, 7, '2025-05-16 08:54:09', '2025-05-16 08:54:09'),
+(11, 'World News', 'world-news', 'Global affairs, international politics, and foreign policy', 1, 8, '2025-05-16 08:54:09', '2025-05-16 08:54:09'),
+(12, 'Lifestyle', 'lifestyle', 'Fashion trends, food, travel, and personal well-being', 1, 9, '2025-05-16 08:54:09', '2025-05-16 08:54:09');
 
 -- --------------------------------------------------------
 
@@ -178,7 +208,17 @@ CREATE TABLE `tags` (
 INSERT INTO `tags` (`id`, `name`, `created_at`) VALUES
 (1, 'COVID-19', '2025-05-16 08:01:02'),
 (2, 'Election', '2025-05-16 08:01:02'),
-(3, 'Olympics', '2025-05-16 08:01:02');
+(3, 'Olympics', '2025-05-16 08:01:02'),
+(4, 'AI', '2025-05-16 09:03:49'),
+(5, 'Healthcare', '2025-05-16 09:03:49'),
+(6, 'Climate Change', '2025-05-16 09:03:49'),
+(7, 'Economy', '2025-05-16 09:03:49'),
+(8, 'Space Exploration', '2025-05-16 09:03:49'),
+(9, 'Innovation', '2025-05-16 09:03:49'),
+(10, 'Sustainability', '2025-05-16 09:03:49'),
+(11, 'Politics', '2025-05-16 09:03:49'),
+(12, 'Sports', '2025-05-16 09:03:49'),
+(13, 'Entertainment', '2025-05-16 09:03:49');
 
 -- --------------------------------------------------------
 
@@ -287,7 +327,7 @@ ALTER TABLE `advertisements`
 -- AUTO_INCREMENT for table `articles`
 --
 ALTER TABLE `articles`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=60;
 
 --
 -- AUTO_INCREMENT for table `article_revisions`
@@ -299,13 +339,13 @@ ALTER TABLE `article_revisions`
 -- AUTO_INCREMENT for table `categories`
 --
 ALTER TABLE `categories`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT for table `tags`
 --
 ALTER TABLE `tags`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT for table `users`
