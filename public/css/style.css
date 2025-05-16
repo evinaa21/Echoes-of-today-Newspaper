@@ -229,9 +229,29 @@ nav .container {
   overflow: hidden;
 }
 
+.breaking-content a {
+  color: white;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.breaking-content a:hover {
+  text-decoration: underline;
+}
+
 .breaking-content marquee {
   font-weight: 600;
   font-size: 0.9rem;
+}
+
+.breaking-category {
+  background-color: rgba(255, 255, 255, 0.2);
+  padding: 2px 5px;
+  border-radius: 3px;
+  font-size: 0.75em;
+  margin-left: 5px;
+  font-weight: bold;
+  text-transform: uppercase;
 }
 
 /* Main Content */
@@ -777,4 +797,15 @@ footer {
   font-size: 0.8rem;
   color: var(--light-text);
   margin-left: 10px;
+}
+
+/* Update the weather styling in your css file */
+.weather {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.weather i {
+  font-size: 0.9rem;
 }

@@ -1,6 +1,11 @@
 <?php
 // Include database connection
 require_once '../includes/db_connection.php';
+// Include weather function
+require_once '../includes/weather.php';
+
+// Get weather data for Tirana
+$weather = getWeather('Tirana', 'AL');
 
 // Get categories for navigation
 $cat_query = "SELECT id, name, slug FROM categories WHERE is_active = 1 ORDER BY display_order ASC";
@@ -112,6 +117,16 @@ function getCategoryClass($categoryName)
         return 'category-lifestyle';
     return '';
 }
+
+// Get breaking news - articles published within last 24 hours
+$breaking_news_query = "SELECT a.title, a.slug, c.name as category_name 
+                       FROM articles a 
+                       JOIN categories c ON a.category_id = c.id 
+                       WHERE a.status = 'published' 
+                       AND a.published_at >= DATE_SUB(NOW(), INTERVAL 24 HOUR) 
+                       ORDER BY a.published_at DESC 
+                       LIMIT 5";
+$breaking_news = $conn->query($breaking_news_query);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -133,7 +148,10 @@ function getCategoryClass($categoryName)
         <div class="container">
             <div class="date-weather">
                 <span class="current-date"><?php echo date("l, F j, Y"); ?></span>
-                <span class="weather">76°F New York</span>
+                <span class="weather">
+                    <?php echo $weather['temp']; ?>°C Tirana
+                    <i class="fas fa-<?php echo getWeatherIcon($weather['condition']); ?>"></i>
+                </span>
             </div>
             <div class="social-links">
                 <a href="#"><i class="fab fa-facebook-f"></i></a>
@@ -223,11 +241,25 @@ function getCategoryClass($categoryName)
             <div class="breaking-title">Breaking News</div>
             <div class="breaking-content">
                 <marquee behavior="scroll" direction="left" onmouseover="this.stop();" onmouseout="this.start();">
-                    <?php if ($featured_article): ?>
-                        <?php echo htmlspecialchars($featured_article['title']); ?> •
-                    <?php endif; ?>
-                    Global Summit on Climate Change Results in Historic Agreement •
-                    Tech Leaders Unveil Next Generation AI • Major Sports Championship Final Set for Weekend
+                    <?php
+                    // If we have breaking news items from the last 24 hours
+                    if ($breaking_news->num_rows > 0) {
+                        $news_items = [];
+                        while ($news_item = $breaking_news->fetch_assoc()) {
+                            $news_items[] = '<a href="article.php?slug=' . htmlspecialchars($news_item['slug']) . '">' .
+                                htmlspecialchars($news_item['title']) . '</a> <span class="breaking-category">' .
+                                htmlspecialchars($news_item['category_name']) . '</span>';
+                        }
+                        echo implode(' • ', $news_items);
+                    } else if ($featured_article) {
+                        // Fallback to featured article if no breaking news
+                        echo htmlspecialchars($featured_article['title']) . ' • ';
+                        echo 'Global Summit on Climate Change Results in Historic Agreement • Tech Leaders Unveil Next Generation AI';
+                    } else {
+                        // Final fallback
+                        echo 'Welcome to Echoes of Today - Your Source for the Latest News and Updates';
+                    }
+                    ?>
                 </marquee>
             </div>
         </div>
