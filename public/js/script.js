@@ -26,16 +26,17 @@ document.addEventListener('DOMContentLoaded', function() {
     window.addEventListener('scroll', stickyNavigation);
 
     // Search functionality
-    const searchForm = document.querySelector('.search-box');
+    const searchForm = document.querySelector('.search-box form');
     if (searchForm) {
         searchForm.addEventListener('submit', function(e) {
-            e.preventDefault();
+            // Don't prevent default - let the form submit normally
+            // Or manually redirect if you want to control the process
             const searchTerm = this.querySelector('input').value.trim();
-            if (searchTerm) {
-                alert(`Search for: ${searchTerm}\nThis would normally redirect to search results.`);
-                // In a real implementation, you would redirect to search results page
-                // window.location.href = `/search?q=${encodeURIComponent(searchTerm)}`;
+            if (!searchTerm) {
+                e.preventDefault(); // Only prevent submission if empty
+                alert('Please enter a search term');
             }
+            // Otherwise let the form submit naturally to search.php
         });
     }
 
@@ -76,4 +77,35 @@ document.addEventListener('DOMContentLoaded', function() {
             alert(`Loading more articles from ${categoryName} category...\nThis would normally load or redirect to more content.`);
         });
     });
+
+    // View switching
+    const viewButtons = document.querySelectorAll('.view-option');
+    const articlesContainer = document.getElementById('articlesContainer');
+    
+    if (viewButtons.length && articlesContainer) {
+        viewButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                // Remove active class from all buttons
+                viewButtons.forEach(btn => btn.classList.remove('active'));
+                // Add active class to clicked button
+                this.classList.add('active');
+                
+                // Change view
+                const viewType = this.dataset.view;
+                articlesContainer.className = viewType === 'list' 
+                    ? 'news-list category-list' 
+                    : 'news-grid category-grid';
+                
+                // Save preference
+                localStorage.setItem('preferred_view', viewType);
+            });
+        });
+        
+        // Load saved preference
+        const savedView = localStorage.getItem('preferred_view');
+        if (savedView) {
+            const button = document.querySelector(`.view-option[data-view="${savedView}"]`);
+            if (button) button.click();
+        }
+    }
 });
