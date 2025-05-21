@@ -1,16 +1,16 @@
 <?php
 session_start();
-if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
-    exit();
-}
+include_once('../includes/db_connection.php');
 
-$userId = $_SESSION['user_id'];
 
-$conn = new mysqli("localhost", "root", "", "news_website");
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
+// if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'journalist') {
+//     header('Location: ../login.php');
+//     exit;
+// }
+$userId = $_SESSION['user_id'] ?? 2; 
+$userId = intval($userId);    
+
+
 
 $stmt = $conn->prepare("SELECT username, email, role, first_name, last_name, bio, profile_image FROM users WHERE id = ?");
 $stmt->bind_param("i", $userId);
