@@ -2,13 +2,7 @@
 session_start();
 require_once '../includes/db_connection.php';
 
-$id = $_GET['id'] ?? '';
-
-if (empty($id)) {
-    header('Location: users.php');
-    echo("ID is empty");
-    exit;
-}
+$id = isset($_GET['id']) ? intval($_GET['id']) : 2;
 
 // Fetch user data
 $stmt = $conn->prepare("SELECT * FROM users WHERE id = ?");
@@ -20,7 +14,6 @@ $stmt->close();
 
 if (!$user) {
     header('Location: dashboard.php');
-    echo("User does not exist");
     exit;
 }
 
@@ -46,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt = $conn->prepare("UPDATE users SET password = ? WHERE id = ?");
         $stmt->bind_param("si", $hashpassword, $id);
         $stmt->execute();
-        header('Location: edit_password.php');
+        header('Location: edit_password.php?success=1');
         exit;
     }
 }
