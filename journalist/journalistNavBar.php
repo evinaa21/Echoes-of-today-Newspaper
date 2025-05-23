@@ -81,15 +81,18 @@
   }
 
   .brand-primary {
-    color: #00f0ff; /* Cyan */
+    color: #00f0ff;
+    /* Cyan */
   }
 
   .brand-middle {
-    color: #5be8ff; /* Soft sky blue (between cyan and lavender) */
+    color: #5be8ff;
+    /* Soft sky blue (between cyan and lavender) */
   }
 
   .brand-secondary {
-    color: #b1b5ff; /* Lavender */
+    color: #b1b5ff;
+    /* Lavender */
   }
 
   .welcome-text {
@@ -115,14 +118,14 @@
       <li class="dropdown">
         <a href="#"><i class="fas fa-newspaper"></i> News ▾</a>
         <ul class="submenu">
-          <li><a href="all_news.php">All News</a></li>
-          <li><a href="pending_news.php">Pending News</a></li>
-          <li><a href="approved_news.php">Approved News</a></li>
-          <li><a href="rejected_news.php">Rejected News</a></li>
+          <li><a href="allNews.php">All News</a></li>
+          <li><a href="newsByStatus.php?status=pending_review">Pending News</a></li>
+          <li><a href="newsByStatus.php?status=published">Approved News</a></li>
+          <li><a href="newsByStatus.php?status=rejected">Rejected News</a></li>
         </ul>
       </li>
       <li><a href="my_profile.php"><i class="fas fa-user"></i> My Profile</a></li>
-      <li><a href="edit_password.php"><i class="fas fa-key"></i> Change Password</a></li>
+      <li><a href="change_password.php"><i class="fas fa-key"></i> Change Password</a></li>
       <li><a href="logout.php"><i class="fas fa-sign-out-alt"></i> Log Out</a></li>
     </ul>
   </nav>

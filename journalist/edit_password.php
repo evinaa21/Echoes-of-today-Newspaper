@@ -1,8 +1,6 @@
 <?php
-include ("header.php");
-include ("journalistNavBar.php");
 session_start();
-require ('../includes/db_connection.php');
+require_once '../includes/db_connection.php';
 
 $id = $_GET['id'] ?? '';
 
