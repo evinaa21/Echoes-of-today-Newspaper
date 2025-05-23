@@ -1,0 +1,166 @@
+/* ======================================================
+   Base Layout
+====================================================== */
+body {
+  background-color: #f4f6fa;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+/* ======================================================
+   Sidebar
+====================================================== */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 240px;
+  height: 100vh;
+  z-index: 1000; /* HIGH z-index to float above everything */
+}
+
+.sidebar a {
+  color: white;
+  text-decoration: none;
+  display: block;
+  padding: 15px 20px;
+  border-left: 3px solid transparent;
+  transition: 0.3s ease;
+  font-weight: 500;
+}
+
+.sidebar a:hover,
+.sidebar a.active {
+  background-color: #2d3f72;
+  border-left: 3px solid #00f0ff;
+}
+
+/* ======================================================
+   Header Bar
+====================================================== */
+.header-bar {
+  background-color: white;
+  border-bottom: 1px solid #dee2e6;
+  padding: 1rem 2rem;
+  position: relative; /* Optional, ensures it stays in layout flow */
+  z-index: 1;         /* Lower than sidebar */
+}
+
+
+/* ======================================================
+   Dashboard Summary Cards
+====================================================== */
+.card-summary {
+  background-color: white;
+  border-radius: 8px;
+  border-left: 5px solid #4b4df1;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  text-align: center;
+  padding: 20px;
+  transition: 0.3s ease;
+}
+
+.card-summary.border-success {
+  border-left-color: #28a745;
+}
+
+.card-summary.border-warning {
+  border-left-color: #ffc107;
+}
+
+.card-summary.border-danger {
+  border-left-color: #dc3545;
+}
+
+.card-summary h5 {
+  font-size: 16px;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.card-summary h3 {
+  font-size: 28px;
+  color: #4b4df1;
+  margin: 0;
+}
+
+/* ======================================================
+   News Table Styling
+====================================================== */
+.table thead {
+  background-color: #4b4df1;
+  color: white;
+  font-size: 14px;
+}
+
+.table tbody td {
+  vertical-align: middle;
+  font-size: 14px;
+}
+
+/* ======================================================
+   Status Indicators
+====================================================== */
+.status-enabled {
+  color: #28a745;
+  font-weight: 600;
+}
+
+.status-disabled {
+  color: #ffc107;
+  font-weight: 600;
+}
+
+.admin-approved {
+  background-color: #e0f8e9;
+  color: #28a745;
+}
+
+.admin-rejected {
+  background-color: #fdecea;
+  color: #dc3545;
+}
+
+.admin-pending {
+  background-color: #fff3cd;
+  color: #ffc107;
+}
+
+.admin-approved,
+.admin-rejected,
+.admin-pending {
+  padding: 5px 10px;
+  font-size: 13px;
+  border-radius: 5px;
+  font-weight: 500;
+  display: inline-block;
+}
+
+/* ======================================================
+   Buttons
+====================================================== */
+.btn-outline-primary.btn-sm {
+  font-size: 13px;
+  padding: 4px 12px;
+}
+
+/* ======================================================
+   Hover Zoom Card Effect
+====================================================== */
+.zoom-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+}
+
+.zoom-card:hover {
+  transform: scale(1.05) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+}
+
+.main-content {
+  background-color: #f4f6fa;
+  padding: 20px;
+  min-height: 100vh;
+  margin-left: 240px;
+}
