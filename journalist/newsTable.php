@@ -1,4 +1,4 @@
-<?php
+<?php 
 if (!isset($articles_result) || !is_object($articles_result)) {
   echo "<div class='alert alert-danger'>⚠️ No article data available. \$articles_result is not defined or invalid.</div>";
   return;
@@ -73,19 +73,25 @@ if (mysqli_num_rows($articles_result) === 0) {
             <?php if (isset($show_edit_column) && $show_edit_column): ?>
               <td>
                 <div class="d-flex justify-content-center gap-1 flex-wrap">
-                  <a href="viewNews.php?id=<?= $article['id'] ?>"
-                    class="btn btn-outline-primary btn-sm py-0 px-2 rounded-pill">
+                  <a href="viewNews.php?id=<?= $article['id'] ?>" class="btn btn-outline-primary btn-sm py-0 px-2 rounded-pill">
                     <i class="bi bi-eye-fill"></i>
                   </a>
-                  <a href="editNews.php?id=<?= $row['id'] ?>" 
-                    class="btn btn-outline-warning btn-sm py-0 px-2 rounded-pill text-dark">
-                    <i class="bi bi-pencil-fill"></i>
-                  </a>
-                  <a href="delete_article.php?id=<?= $article['id'] ?>"
-                    class="btn btn-outline-danger btn-sm py-0 px-2 rounded-pill"
-                    onclick="return confirm('Are you sure you want to delete this article?');">
-                    <i class="bi bi-trash3-fill"></i>
-                  </a>
+
+                  <?php if (in_array($article['status'], ['pending_review', 'rejected'])): ?>
+                    <a href="editNews.php?id=<?= $article['id'] ?>" 
+                      class="btn btn-outline-warning btn-sm py-0 px-2 rounded-pill text-dark">
+                      <i class="bi bi-pencil-fill"></i>
+                      <?= $article['status'] === 'rejected' ? 'Edit & Resubmit' : '' ?>
+                    </a>
+
+                    <button type="button"
+                      class="btn btn-outline-danger btn-sm py-0 px-2 rounded-pill"
+                      data-bs-toggle="modal"
+                      data-bs-target="#deleteModal"
+                      onclick="setDeleteArticleId(<?= $article['id'] ?>)">
+                      <i class="bi bi-trash3-fill"></i>
+                    </button>
+                  <?php endif; ?>
                 </div>
               </td>
             <?php endif; ?>
@@ -95,3 +101,33 @@ if (mysqli_num_rows($articles_result) === 0) {
     </table>
   </div>
 </div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-danger">
+      <form method="POST" action="deleteNews.php">
+        <div class="modal-header bg-danger text-white">
+          <h5 class="modal-title" id="deleteModalLabel">⚠️ Confirm Deletion</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          Are you sure you want to delete this article? This action cannot be undone.
+        </div>
+        <div class="modal-footer">
+          <input type="hidden" name="delete_id" id="delete_article_id">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-danger">Yes, Delete</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Bootstrap JS (make sure it's included) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+function setDeleteArticleId(id) {
+  document.getElementById('delete_article_id').value = id;
+}
+</script>

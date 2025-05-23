@@ -121,7 +121,7 @@ $end_date = $_GET['end_date'] ?? '';
         }
 
         // No edit on status-based pages
-        $show_edit_column = false;
+        $show_edit_column = true;
         include 'newsTable.php';
         ?>
       </div>
