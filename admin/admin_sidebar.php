@@ -20,7 +20,6 @@
           <li><a href="manage_articles.php?status=pending_review">Pending News</a></li>
           <li><a href="manage_articles.php?status=published">Approved News</a></li>
           <li><a href="manage_articles.php?status=rejected">Rejected News</a></li>
-          <li><a href="manage_articles.php?status=live">Live News</a></li>
         </ul>
       </li>
 
@@ -28,10 +27,8 @@
   <a href="#"><i class="fas fa-users"></i> Manage Staff ▾</a>
   <ul class="submenu">
     <li><a href="manage_staff.php?filter=active">Active Staffs</a></li>
-    <li><a href="manage_staff.php?filter=banned">Banned Staffs</a></li>
-    <li><a href="manage_staff.php?filter=email_unverified">Email Unverified</a></li>
+    <li><a href="manage_staff.php?filter=banned">Former Staff</a></li>
     <li><a href="manage_staff.php?filter=all">All Staffs</a></li>
-    <li><a href="send_notification.php">Send Notification</a></li>
   </ul>
 </li>
 
