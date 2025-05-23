@@ -15,7 +15,7 @@ include('../admin/admin_header.php');
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         .main-content {
-            margin-left: 250px;
+            margin-left: 255px;
             margin-top: 60px;
             padding: 30px;
             background-color: #f8f9fa;
