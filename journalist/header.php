@@ -57,7 +57,7 @@
   <div class="user-info">
     <span class="current-datetime" id="currentDateTime"></span>
     <a href="#" title="Notifications"><i class="bi bi-bell-fill"></i></a>
-    <a href="my_profile.php" title="My Profile"><i class="bi bi-person-circle"></i></a>
+    <a href="profile.php" title="My Profile"><i class="bi bi-person-circle"></i></a>
     <a href="logout.php" title="Log Out"><i class="bi bi-box-arrow-right"></i></a>
   </div>
 </div>

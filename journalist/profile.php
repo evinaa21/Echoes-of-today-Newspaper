@@ -1,6 +1,6 @@
 <?php
-include ("header.php");
-include ("journalistNavBar.php");
+
+
 session_start();
 include_once('../includes/db_connection.php');
 
@@ -11,10 +11,10 @@ include_once('../includes/db_connection.php');
 $userId = $_SESSION['user_id'] ?? 2;
 $userId = intval($userId);
 
-$stmt = $conn->prepare("SELECT username, email, role, first_name, last_name, bio, profile_image, country FROM users WHERE id = ?");
+$stmt = $conn->prepare("SELECT username, email, role, first_name, last_name, bio, profile_image, address, state, zip_code, city FROM users WHERE id = ?");
 $stmt->bind_param("i", $userId);
 $stmt->execute();
-$stmt->bind_result($username, $email, $role, $first_name, $last_name, $bio, $profile_image, $country);
+$stmt->bind_result($username, $email, $role, $first_name, $last_name, $bio, $profile_image, $address, $state, $zip_code, $city);
 $stmt->fetch();
 $stmt->close();
 $conn->close();
@@ -167,19 +167,19 @@ $image = $profile_image ?: "https://via.placeholder.com/120";
                   </div>
                   <div class="col-md-12">
                     <label class="text-label">Address</label>
-                    <input type="text" class="form-control" value="London">
+                    <input type="text" class="form-control" value="<?= htmlspecialchars($address) ?>">
                   </div>
                   <div class="col-md-6">
                     <label class="text-label">State</label>
-                    <input type="text" class="form-control" value="London">
+                    <input type="text" class="form-control" value="<?= htmlspecialchars($state) ?>">
                   </div>
                   <div class="col-md-3">
                     <label class="text-label">Zip Code</label>
-                    <input type="text" class="form-control" value="5874">
+                    <input type="text" class="form-control" value="<?= htmlspecialchars($zip_code) ?>">
                   </div>
                   <div class="col-md-3">
                     <label class="text-label">City</label>
-                    <input type="text" class="form-control" value="London">
+                    <input type="text" class="form-control" value="<?= htmlspecialchars($city) ?>">
                   </div>
                 </div>
               </div>

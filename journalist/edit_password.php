@@ -1,16 +1,14 @@
 <?php
 session_start();
-require_once '../includes/db_connection.php';
+require '../includes/db_connection.php';
 
-$id = $_GET['id'] ?? '';
+$id = $_POST['id'] ?? $_GET['id'] ?? '';
 
 if (empty($id)) {
     header('Location: users.php');
-    echo("ID is empty");
     exit;
 }
 
-// Fetch user data
 $stmt = $conn->prepare("SELECT * FROM users WHERE id = ?");
 $stmt->bind_param("i", $id);
 $stmt->execute();
@@ -20,14 +18,10 @@ $stmt->close();
 
 if (!$user) {
     header('Location: dashboard.php');
-    echo("User does not exist");
     exit;
 }
 
-$errors = [
-    'password' => '',
-    'confirm_password' => ''
-];
+$errors = ['password' => '', 'confirm_password' => ''];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = $_POST['password'] ?? '';
@@ -46,7 +40,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt = $conn->prepare("UPDATE users SET password = ? WHERE id = ?");
         $stmt->bind_param("si", $hashpassword, $id);
         $stmt->execute();
-        header('Location: edit_password.php');
+        $stmt->close();
+        header("Location: edit_password.php?id=$id&success=1");
         exit;
     }
 }
@@ -56,42 +51,176 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Select a New Password</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Change Password </title>
+    
+    <script>
+        function togglePasswordVisibility() {
+            const pass = document.getElementById("password");
+            const confirm = document.getElementById("confirm_password");
+            pass.type = pass.type === "password" ? "text" : "password";
+            confirm.type = confirm.type === "password" ? "text" : "password";
+        }
+    </script>
+    <style>
+    body {
+    background-color: #e6f0ff;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.card {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+}
+
+.logo {
+    width: 60px;
+    margin-bottom: 15px;
+}
+
+.title {
+    font-size: 22px;
+    font-weight: bold;
+    color: #0055aa;
+    margin-bottom: 5px;
+}
+
+.subtitle {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 20px;
+}
+
+form label {
+    display: block;
+    text-align: left;
+    margin: 10px 0 4px;
+    font-weight: 600;
+    color: #0055aa;
+}
+
+input[type="text"], input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #99c2ff;
+    border-radius: 6px;
+    background-color: #f4faff;
+    font-size: 14px;
+}
+
+.readonly-input {
+    background-color: #eaf4ff;
+    color: #555;
+    cursor: not-allowed;
+}
+
+.error {
+    display: block;
+    color: red;
+    font-size: 13px;
+    margin-top: 2px;
+}
+
+.success-msg {
+    background-color: #d4edda;
+    color: #155724;
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    font-size: 14px;
+}
+
+.toggle {
+    font-size: 13px;
+    color: #0077cc;
+    margin-top: 8px;
+    cursor: pointer;
+    text-align: right;
+}
+
+.buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.btn-primary {
+    background-color: #005fa3;
+    color: lightblue;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.btn-primary:hover {
+    background-color: #005fa3;
+}
+
+.btn-cancel {
+    background-color: #ddd;
+    color: #333;
+    padding: 10px 20px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.btn-cancel:hover {
+    background-color: #bbb;
+}
+
+</style>
 </head>
-<body class="bg-blue-50 min-h-screen flex items-center justify-center">
-    <form class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md" method="POST" action="">
-        <h1 class="text-2xl font-bold text-blue-700 mb-6 text-center">🔐 Change Password</h1>
+<body>
+    <div class="container">
+        <div class="card">
+            <img src="assets\images\logo.png" alt="Newspaper Logo" class="logo">
+            <h1 class="title">Change Password</h1>
+            <p class="subtitle">Enter a new password for your account</p>
 
-        <!-- Read-Only Username -->
-        <div class="mb-5">
-            <label for="username" class="block text-sm font-semibold text-blue-600 mb-1">Username</label>
-            <input type="text" id="username" name="username" value="<?php echo htmlspecialchars($user['username']); ?>" readonly
-                   class="w-full px-3 py-2 border border-blue-300 rounded-md bg-blue-100 text-gray-800 shadow-sm focus:outline-none">
-        </div>
+            <?php if (isset($_GET['success'])): ?>
+                <div class="success-msg"> Password changed successfully!</div>
+            <?php endif; ?>
 
-        <div class="mb-5">
-            <label for="password" class="block text-sm font-semibold text-blue-600 mb-1">New Password</label>
-            <input type="password" id="password" name="password"
-                   class="w-full px-3 py-2 border border-blue-400 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <p class="text-sm text-red-600 mt-1"><?php echo $errors['password']; ?></p>
-        </div>
+            <form method="POST">
+                <input type="hidden" name="id" value="<?= htmlspecialchars($id) ?>">
 
-        <div class="mb-6">
-            <label for="confirm_password" class="block text-sm font-semibold text-blue-600 mb-1">Confirm Password</label>
-            <input type="password" id="confirm_password" name="confirm_password"
-                   class="w-full px-3 py-2 border border-blue-400 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <p class="text-sm text-red-600 mt-1"><?php echo $errors['confirm_password']; ?></p>
-        </div>
+                <label>Username</label>
+                <input type="text" name="username" value="<?= htmlspecialchars($user['username']) ?>" readonly class="readonly-input">
 
-        <div class="flex items-center justify-between">
-            <button type="submit"
-                class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded shadow focus:outline-none focus:ring-2 focus:ring-blue-400">
-                Change Password
-            </button>
-            <a href="profile.php"
-                class="text-red-600 hover:text-red-800 font-medium underline transition duration-150">Cancel</a>
+                <label>New Password</label>
+                <input type="password" name="password" id="password">
+                <span class="error"><?= $errors['password'] ?></span>
+
+                <label>Confirm Password</label>
+                <input type="password" name="confirm_password" id="confirm_password">
+                <span class="error"><?= $errors['confirm_password'] ?></span>
+
+                <label class="toggle">
+                 <input type="checkbox" id="showPasswords" onclick="togglePasswordVisibility()">
+                Show Passwords
+                </label>
+
+                <div class="buttons">
+                    <button type="submit" class="btn-primary">Change Password</button>
+                    <a href="profile.php" class="btn-cancel">Cancel</a>
+                </div>
+            </form>
         </div>
-    </form>
+    </div>
 </body>
 </html>

@@ -318,6 +318,13 @@ ALTER TABLE `users`
   ADD UNIQUE KEY `username` (`username`),
   ADD UNIQUE KEY `email` (`email`);
 
+  ALTER TABLE `users`
+ADD COLUMN `address` VARCHAR(255) DEFAULT NULL,
+ADD COLUMN `state` VARCHAR(100) DEFAULT NULL,
+ADD COLUMN `zip_code` VARCHAR(20) DEFAULT NULL,
+ADD COLUMN `city` VARCHAR(100) DEFAULT NULL;
+
+
 --
 -- AUTO_INCREMENT for dumped tables
 --
