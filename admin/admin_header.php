@@ -8,7 +8,7 @@
 
 
   <div class="header-icons">
-    <a href="https://your-newspaper-site.com" target="_blank" title="Visit Website">
+    <a href="http://localhost/Echoes-of-today-Newspaper/public/index.php" target="_blank" title="Visit Website">
       <i class="fas fa-globe"></i>
     </a>
     <a href="notifications.php" title="Notifications">
@@ -19,7 +19,7 @@
     </a>
 
     <div class="profile-dropdown" onclick="toggleDropdown()">
-      <img src="assets/profile.jpg" alt="Profile" class="profile-img">
+      <img src="uploads/1747995328_adminPfp.png" alt="Profile" class="profile-img">
       <span class="username">admin</span>
       <i class="fas fa-chevron-down"></i>
 
