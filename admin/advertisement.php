@@ -2,7 +2,7 @@
 session_start();
 include('../includes/db_connection.php');
 
-// Fetch all advertisements
+// Fetch all advertisements hfeuygeuyygds
 $query = "SELECT * FROM advertisements ORDER BY created_at DESC";
 $result = mysqli_query($conn, $query);
 ?>
