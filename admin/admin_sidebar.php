@@ -5,7 +5,6 @@
   <h2><span class="brand-primary">Echo</span><span class="brand-secondary">Today</span></h2>
   <p class="welcome-text">Welcome, Admin</p>
 </div>
-//onejdaaaaaaaaaaaaaaaaaaaa
   </div>
 
   <nav class="nav-menu">
@@ -18,7 +17,7 @@
         <a href=""><i class="fas fa-newspaper"></i> Manage News ▾</a>
         <ul class="submenu">
           <li><a href="manage_articles.php?status=all">All News</a></li>
-          <li><a href="manage_articles.php?status=pending">Pending News</a></li>
+          <li><a href="manage_articles.php?status=pending_review">Pending News</a></li>
           <li><a href="manage_articles.php?status=published">Approved News</a></li>
           <li><a href="manage_articles.php?status=rejected">Rejected News</a></li>
           <li><a href="manage_articles.php?status=live">Live News</a></li>
@@ -35,15 +34,6 @@
     <li><a href="send_notification.php">Send Notification</a></li>
   </ul>
 </li>
-
-      <li class="dropdown">
-        <a href="#"><i class="fas fa-ticket-alt"></i> Support Ticket ▾</a>
-        <ul class="submenu">
-          <li><a href="all_tickets.php">All Tickets</a></li>
-          <li><a href="pending_tickets.php">Pending</a></li>
-          <li><a href="closed_tickets.php">Closed</a></li>
-        </ul>
-      </li>
 
       <li><a href="report.php"><i class="fas fa-chart-line"></i> Report</a></li>
       <li><a href="settings.php"><i class="fas fa-cogs"></i> System Setting</a></li>
