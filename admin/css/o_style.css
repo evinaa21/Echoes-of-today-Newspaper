@@ -1,0 +1,125 @@
+body {
+  background-color: #f4f5fa;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+.form-section {
+  max-width: 900px;
+  margin: 40px auto;
+  background: white;
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.form-section h4 {
+  font-weight: bold;
+  color: #333;
+}
+
+.form-section label {
+  font-weight: 600;
+  color: #333;
+}
+
+.form-section input[type="text"],
+.form-section input[type="file"],
+.form-section select,
+.form-section textarea {
+  border-radius: 8px;
+  padding: 10px 14px;
+  border: 1px solid #ccc;
+  font-size: 15px;
+  width: 100%;
+}
+
+.form-section input[type="text"]:focus,
+.form-section select:focus,
+.form-section textarea:focus {
+  border-color: #5b47fb;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(91, 71, 251, 0.1);
+}
+
+.form-section textarea {
+  resize: vertical;
+}
+
+.form-section img {
+  max-height: 300px;
+  border-radius: 12px;
+  object-fit: contain;
+  border: 1px solid #ddd;
+}
+
+.form-section .text-muted {
+  font-size: 14px;
+  color: #888;
+}
+
+.custom-toggle {
+  background-color: #28c76f;
+  color: white;
+  padding: 10px 30px;
+  border-radius: 10px;
+  font-weight: bold;
+  text-align: center;
+  cursor: default;
+  font-size: 14px;
+  user-select: none;
+}
+
+.form-control:disabled {
+  background-color: #e9ecef;
+}
+
+button[type="submit"] {
+  background-color: #5b47fb;
+  border: none;
+  font-weight: bold;
+  font-size: 16px;
+  padding: 12px;
+  border-radius: 10px;
+  color: white;
+  transition: background 0.3s ease;
+}
+
+button[type="submit"]:hover {
+  background-color: #4a3ae6;
+}
+
+
+/* === Search bar & Add Staff styles === */
+.search-bar-wrapper {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.search-container {
+  position: relative;
+  max-width: 300px;
+  width: 100%;
+}
+
+.search-container input {
+  padding-left: 35px;
+}
+
+.search-container .fa-search {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #aaa;
+}
+
+.add-btn {
+  white-space: nowrap;
+}
+
+

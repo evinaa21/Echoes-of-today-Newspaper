@@ -229,8 +229,10 @@ $breaking_news = $conn->query($breaking_news_query);
                 ?>
             </ul>
             <div class="search-box">
-                <input type="text" placeholder="Search...">
-                <button><i class="fas fa-search"></i></button>
+                <form action="search.php" method="GET">
+                    <input type="text" name="q" placeholder="Search..." required>
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </form>
             </div>
         </div>
     </nav>
@@ -271,22 +273,29 @@ $breaking_news = $conn->query($breaking_news_query);
             <!-- Front Page Grid -->
             <section class="front-page-grid">
                 <?php if ($featured_article): ?>
+                    <!-- Main story - make title and image clickable -->
                     <div class="main-story">
                         <div class="story-image">
-                            <?php if ($featured_article['featured_image']): ?>
-                                <img src="<?php echo htmlspecialchars($featured_article['featured_image']); ?>"
-                                    alt="<?php echo htmlspecialchars($featured_article['title']); ?>">
-                            <?php else: ?>
-                                <img src="https://source.unsplash.com/random/800x450/?news,<?php echo htmlspecialchars($featured_article['category_slug']); ?>"
-                                    alt="Featured Article">
-                            <?php endif; ?>
+                            <a href="article.php?slug=<?php echo htmlspecialchars($featured_article['slug']); ?>">
+                                <?php if ($featured_article['featured_image']): ?>
+                                    <img src="<?php echo htmlspecialchars($featured_article['featured_image']); ?>"
+                                        alt="<?php echo htmlspecialchars($featured_article['title']); ?>">
+                                <?php else: ?>
+                                    <img src="https://source.unsplash.com/random/800x450/?news,<?php echo htmlspecialchars($featured_article['category_slug']); ?>"
+                                        alt="Featured Article">
+                                <?php endif; ?>
+                            </a>
                         </div>
                         <div class="story-content">
                             <span
                                 class="category-label <?php echo getCategoryClass($featured_article['category_name']); ?>">
                                 <?php echo htmlspecialchars($featured_article['category_name']); ?>
                             </span>
-                            <h2><?php echo htmlspecialchars($featured_article['title']); ?></h2>
+                            <h2>
+                                <a href="article.php?slug=<?php echo htmlspecialchars($featured_article['slug']); ?>">
+                                    <?php echo htmlspecialchars($featured_article['title']); ?>
+                                </a>
+                            </h2>
                             <p class="story-excerpt"><?php echo htmlspecialchars($featured_article['excerpt']); ?></p>
                             <div class="meta-info">
                                 <span
@@ -304,19 +313,25 @@ $breaking_news = $conn->query($breaking_news_query);
                     if ($count == 0): ?>
                         <div class="secondary-story">
                             <div class="story-image">
-                                <?php if ($article['featured_image']): ?>
-                                    <img src="<?php echo htmlspecialchars($article['featured_image']); ?>"
-                                        alt="<?php echo htmlspecialchars($article['title']); ?>">
-                                <?php else: ?>
-                                    <img src="https://source.unsplash.com/random/400x250/?<?php echo htmlspecialchars($article['category_slug']); ?>"
-                                        alt="<?php echo htmlspecialchars($article['category_name']); ?> News">
-                                <?php endif; ?>
+                                <a href="article.php?slug=<?php echo htmlspecialchars($article['slug']); ?>">
+                                    <?php if ($article['featured_image']): ?>
+                                        <img src="<?php echo htmlspecialchars($article['featured_image']); ?>"
+                                            alt="<?php echo htmlspecialchars($article['title']); ?>">
+                                    <?php else: ?>
+                                        <img src="https://source.unsplash.com/random/400x250/?<?php echo htmlspecialchars($article['category_slug']); ?>"
+                                            alt="<?php echo htmlspecialchars($article['category_name']); ?> News">
+                                    <?php endif; ?>
+                                </a>
                             </div>
                             <div class="story-content">
                                 <span class="category-label <?php echo getCategoryClass($article['category_name']); ?>">
                                     <?php echo htmlspecialchars($article['category_name']); ?>
                                 </span>
-                                <h3><?php echo htmlspecialchars($article['title']); ?></h3>
+                                <h3>
+                                    <a href="article.php?slug=<?php echo htmlspecialchars($article['slug']); ?>">
+                                        <?php echo htmlspecialchars($article['title']); ?>
+                                    </a>
+                                </h3>
                                 <p class="story-excerpt"><?php echo htmlspecialchars($article['excerpt']); ?></p>
                                 <div class="meta-info">
                                     <span class="time"><?php echo time_elapsed_string($article['published_at']); ?></span>
@@ -325,21 +340,28 @@ $breaking_news = $conn->query($breaking_news_query);
                             </div>
                         </div>
                     <?php else: ?>
+                        <!-- Small story - add link -->
                         <div class="small-story">
                             <div class="story-image">
-                                <?php if ($article['featured_image']): ?>
-                                    <img src="<?php echo htmlspecialchars($article['featured_image']); ?>"
-                                        alt="<?php echo htmlspecialchars($article['title']); ?>">
-                                <?php else: ?>
-                                    <img src="https://source.unsplash.com/random/300x200/?<?php echo htmlspecialchars($article['category_slug']); ?>"
-                                        alt="<?php echo htmlspecialchars($article['category_name']); ?> News">
-                                <?php endif; ?>
+                                <a href="article.php?slug=<?php echo htmlspecialchars($article['slug']); ?>">
+                                    <?php if ($article['featured_image']): ?>
+                                        <img src="<?php echo htmlspecialchars($article['featured_image']); ?>"
+                                            alt="<?php echo htmlspecialchars($article['title']); ?>">
+                                    <?php else: ?>
+                                        <img src="https://source.unsplash.com/random/300x200/?<?php echo htmlspecialchars($article['category_slug']); ?>"
+                                            alt="<?php echo htmlspecialchars($article['category_name']); ?> News">
+                                    <?php endif; ?>
+                                </a>
                             </div>
                             <div class="story-content">
                                 <span class="category-label <?php echo getCategoryClass($article['category_name']); ?>">
                                     <?php echo htmlspecialchars($article['category_name']); ?>
                                 </span>
-                                <h4><?php echo htmlspecialchars($article['title']); ?></h4>
+                                <h4>
+                                    <a href="article.php?slug=<?php echo htmlspecialchars($article['slug']); ?>">
+                                        <?php echo htmlspecialchars($article['title']); ?>
+                                    </a>
+                                </h4>
                                 <div class="meta-info">
                                     <span class="time"><?php echo time_elapsed_string($article['published_at']); ?></span>
                                 </div>
@@ -364,16 +386,22 @@ $breaking_news = $conn->query($breaking_news_query);
                                 <?php while ($article = $category_data['articles']->fetch_assoc()): ?>
                                     <div class="news-item">
                                         <div class="news-item-image">
-                                            <?php if ($article['featured_image']): ?>
-                                                <img src="<?php echo htmlspecialchars($article['featured_image']); ?>"
-                                                    alt="<?php echo htmlspecialchars($article['title']); ?>">
-                                            <?php else: ?>
-                                                <img src="https://source.unsplash.com/random/300x200/?<?php echo htmlspecialchars($slug); ?>"
-                                                    alt="<?php echo htmlspecialchars($category_data['info']['name']); ?> News">
-                                            <?php endif; ?>
+                                            <a href="article.php?slug=<?php echo htmlspecialchars($article['slug']); ?>">
+                                                <?php if ($article['featured_image']): ?>
+                                                    <img src="<?php echo htmlspecialchars($article['featured_image']); ?>"
+                                                        alt="<?php echo htmlspecialchars($article['title']); ?>">
+                                                <?php else: ?>
+                                                    <img src="https://source.unsplash.com/random/300x200/?<?php echo htmlspecialchars($slug); ?>"
+                                                        alt="<?php echo htmlspecialchars($category_data['info']['name']); ?> News">
+                                                <?php endif; ?>
+                                            </a>
                                         </div>
                                         <div class="news-item-content">
-                                            <h3><?php echo htmlspecialchars($article['title']); ?></h3>
+                                            <h3>
+                                                <a href="article.php?slug=<?php echo htmlspecialchars($article['slug']); ?>">
+                                                    <?php echo htmlspecialchars($article['title']); ?>
+                                                </a>
+                                            </h3>
                                             <div class="meta-info">
                                                 <span
                                                     class="time"><?php echo time_elapsed_string($article['published_at']); ?></span>
@@ -397,15 +425,22 @@ $breaking_news = $conn->query($breaking_news_query);
                             <?php while ($article = $popular_articles->fetch_assoc()): ?>
                                 <div class="popular-item">
                                     <div class="popular-item-image">
-                                        <?php if ($article['featured_image']): ?>
-                                            <img src="<?php echo htmlspecialchars($article['featured_image']); ?>"
-                                                alt="<?php echo htmlspecialchars($article['title']); ?>">
-                                        <?php else: ?>
-                                            <img src="https://source.unsplash.com/random/100x100/?trending" alt="Popular News">
-                                        <?php endif; ?>
+                                        <a href="article.php?slug=<?php echo htmlspecialchars($article['slug']); ?>">
+                                            <?php if ($article['featured_image']): ?>
+                                                <img src="<?php echo htmlspecialchars($article['featured_image']); ?>"
+                                                    alt="<?php echo htmlspecialchars($article['title']); ?>">
+                                            <?php else: ?>
+                                                <img src="https://source.unsplash.com/random/100x100/?trending"
+                                                    alt="Popular News">
+                                            <?php endif; ?>
+                                        </a>
                                     </div>
                                     <div class="popular-item-content">
-                                        <h4><?php echo htmlspecialchars($article['title']); ?></h4>
+                                        <h4>
+                                            <a href="article.php?slug=<?php echo htmlspecialchars($article['slug']); ?>">
+                                                <?php echo htmlspecialchars($article['title']); ?>
+                                            </a>
+                                        </h4>
                                         <span
                                             class="time"><?php echo time_elapsed_string($article['published_at']); ?></span>
                                         <span class="views"><i class="fas fa-eye"></i>
