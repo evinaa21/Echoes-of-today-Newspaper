@@ -4,6 +4,21 @@ include_once('../includes/db_connection.php');
 
 $userId = $_SESSION['user_id'] ?? 2;
 $userId = intval($userId);
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+  $first_name = $_POST['first_name'] ?? '';
+  $last_name = $_POST['last_name'] ?? '';
+  $address = $_POST['address'] ?? '';
+  $zip_code = $_POST['zip_code'] ?? '';
+  $city = $_POST['city'] ?? '';
+  $country = $_POST['country'] ?? '';
+
+  $update_stmt = $conn->prepare("UPDATE users SET first_name = ?, last_name = ?, address = ?, zip_code = ?, city = ?, country = ? WHERE id = ?");
+  $update_stmt->bind_param("ssssssi", $first_name, $last_name, $address, $zip_code, $city, $country, $userId);
+  $update_stmt->execute();
+  $update_stmt->close();
+  header("Location: " . $_SERVER['PHP_SELF']);
+  exit();
+}
 
 $stmt = $conn->prepare("SELECT username, email, role, first_name, last_name, bio, profile_image, address, zip_code, city, mobile, country FROM users WHERE id = ?");
 $stmt->bind_param("i", $userId);
@@ -19,6 +34,7 @@ $image = $profile_image ? "uploads/2.png" : "uploads/2.png";
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <title>Profile Setting</title>
@@ -34,27 +50,32 @@ $image = $profile_image ? "uploads/2.png" : "uploads/2.png";
       border-radius: 50%;
       border: 3px solid #00f0ff;
     }
+
     .left-box {
       background-color: #4527a0;
       color: white;
       padding: 30px;
       border-radius: 10px;
     }
+
     .info-table td {
       padding: 6px 0;
     }
+
     .image-box {
       border: 2px dashed #ccc;
       padding: 15px;
       text-align: center;
       border-radius: 10px;
     }
+
     .image-box img {
       width: 100px;
       height: 100px;
       border-radius: 50%;
       object-fit: cover;
     }
+
     .submit-btn {
       background-color: #4a3aff;
       color: white;
@@ -63,12 +84,15 @@ $image = $profile_image ? "uploads/2.png" : "uploads/2.png";
       font-weight: 500;
       border-radius: 6px;
     }
+
     .submit-btn:hover {
       background-color: #362fff;
     }
+
     .left-box i {
       color: #90caf9;
     }
+
     .text-light-emphasis {
       color: #cfd8dc !important;
     }
@@ -85,7 +109,6 @@ $image = $profile_image ? "uploads/2.png" : "uploads/2.png";
       <div class="p-4">
         <h2 class="mb-4">Profile Setting</h2>
         <div class="row g-4">
-          <!-- LEFT PANEL -->
           <div class="col-md-4">
             <div class="left-box text-center">
               <img src="<?= htmlspecialchars($image) ?>" class="profile-img mb-3" alt="User Image">
@@ -110,7 +133,7 @@ $image = $profile_image ? "uploads/2.png" : "uploads/2.png";
           <div class="col-md-8">
             <div class="card p-4">
               <h5 class="mb-3">Update Information</h5>
-              <form action="#" method="POST" enctype="multipart/form-data">
+              <form action="<?= htmlspecialchars($_SERVER['PHP_SELF']) ?>" method="POST" enctype="multipart/form-data">
                 <div class="row g-3">
                   <div class="col-md-4 text-center">
                     <div class="image-box">
@@ -124,27 +147,27 @@ $image = $profile_image ? "uploads/2.png" : "uploads/2.png";
                     <div class="row g-3">
                       <div class="col-md-6">
                         <label class="form-label">First Name</label>
-                        <input type="text" class="form-control" value="<?= htmlspecialchars($first_name) ?>">
+                        <input type="text" name="first_name" class="form-control" value="<?= htmlspecialchars($first_name) ?>">
                       </div>
                       <div class="col-md-6">
                         <label class="form-label">Last Name</label>
-                        <input type="text" class="form-control" value="<?= htmlspecialchars($last_name) ?>">
+                        <input type="text" name="last_name" class="form-control" value="<?= htmlspecialchars($last_name) ?>">
                       </div>
                       <div class="col-md-12">
                         <label class="form-label">Address</label>
-                        <input type="text" class="form-control" value="<?= htmlspecialchars($address) ?>">
+                        <input type="text" name="address" class="form-control" value="<?= htmlspecialchars($address) ?>">
                       </div>
                       <div class="col-md-3">
                         <label class="form-label">Zip Code</label>
-                        <input type="text" class="form-control" value="<?= htmlspecialchars($zip_code) ?>">
+                        <input type="text" name="zip_code" class="form-control" value="<?= htmlspecialchars($zip_code) ?>">
                       </div>
                       <div class="col-md-3">
                         <label class="form-label">City</label>
-                        <input type="text" class="form-control" value="<?= htmlspecialchars($city) ?>">
+                        <input type="text" name="city" class="form-control" value="<?= htmlspecialchars($city) ?>">
                       </div>
                       <div class="col-md-6">
                         <label class="form-label">Country</label>
-                        <input type="text" class="form-control" name="country" value="<?= htmlspecialchars($country ?? '') ?>">
+                        <input type="text" name="country" class="form-control" value="<?= htmlspecialchars($country ?? '') ?>">
                       </div>
                     </div>
                   </div>
@@ -163,4 +186,5 @@ $image = $profile_image ? "uploads/2.png" : "uploads/2.png";
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>

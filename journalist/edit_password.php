@@ -5,12 +5,6 @@ require '../includes/db_connection.php';
 $id = $_SESSION['user_id'] ?? 2;
 $id = intval($id);
 
-
-// if (isset($id)) {
-//     header('Location: users.php');
-//     exit;
-// }
-
 $stmt = $conn->prepare("SELECT * FROM users WHERE id = ?");
 $stmt->bind_param("i", $id);
 $stmt->execute();
@@ -190,7 +184,6 @@ input[type="text"], input[type="password"] {
 <body>
     <div class="container">
         <div class="card">
-            <img src="assets\images\logo.png" alt="Newspaper Logo" class="logo">
             <h1 class="title">Change Password</h1>
             <p class="subtitle">Enter a new password for your account</p>
 
