@@ -1,13 +1,14 @@
 <?php
 session_start();
-require '../includes/db_connection.php';
+include_once '../includes/db_connection.php';
 
-$id = $_POST['id'] ?? $_GET['id'] ?? '';
+// if (!isset($_SESSION['user_id'])) {
+//     header('Location: users.php');
+//     exit;
+// }
 
-if (empty($id)) {
-    header('Location: users.php');
-    exit;
-}
+$id = $_SESSION['user_id'] ?? 2;
+$id = intval($id);
 
 $stmt = $conn->prepare("SELECT * FROM users WHERE id = ?");
 $stmt->bind_param("i", $id);
