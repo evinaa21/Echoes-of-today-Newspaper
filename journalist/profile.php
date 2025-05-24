@@ -11,6 +11,21 @@ include_once('../includes/db_connection.php');
 $userId = $_SESSION['user_id'] ?? 2;
 $userId = intval($userId);
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $first_name = $_POST['first_name'] ?? '';
+    $last_name = $_POST['last_name'] ?? '';
+    $address = $_POST['address'] ?? '';
+    $state = $_POST['state'] ?? '';
+    $zip_code = $_POST['zip_code'] ?? '';
+    $city = $_POST['city'] ?? '';
+
+    $stmt = $conn->prepare("UPDATE users SET first_name = ?, last_name = ?, address = ?, state = ?, zip_code = ?, city = ? WHERE id = ?");
+    $stmt->bind_param("ssssssi", $first_name, $last_name, $address, $state, $zip_code, $city, $userId);
+    $stmt->execute();
+    $stmt->close();
+    exit;
+}
+
 $stmt = $conn->prepare("SELECT username, email, role, first_name, last_name, bio, profile_image, address, state, zip_code, city FROM users WHERE id = ?");
 $stmt->bind_param("i", $userId);
 $stmt->execute();
