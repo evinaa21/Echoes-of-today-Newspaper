@@ -401,6 +401,31 @@ ADD COLUMN `state` VARCHAR(100) DEFAULT NULL,
 ADD COLUMN `zip_code` VARCHAR(20) DEFAULT NULL,
 ADD COLUMN `city` VARCHAR(100) DEFAULT NULL;
 
+UPDATE users 
+SET profile_image = 'journalist/uploads/2.png' 
+WHERE id = '2';
+
+ALTER TABLE users
+ADD COLUMN mobile VARCHAR(20) AFTER email;
+
+ALTER TABLE users
+ADD COLUMN country VARCHAR(100) AFTER mobile;
+
+UPDATE users
+SET 
+    email = 'sarah.smith@gmail.com',
+    mobile = '+355691234567',
+    country = 'UK'
+WHERE id = 2;
+
+ALTER TABLE users
+DROP COLUMN state;
+
+UPDATE users
+SET country = NULL
+WHERE id = 2;
+
+COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
