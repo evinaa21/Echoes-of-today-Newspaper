@@ -68,7 +68,7 @@ CREATE TABLE `articles` (
   `featured_image` varchar(255) DEFAULT NULL,
   `author_id` int(11) NOT NULL,
   `category_id` int(11) NOT NULL,
-  `status` enum('draft','pending_review','published','rejected') DEFAULT 'draft',
+  `status` enum('pending_review','published','rejected') DEFAULT 'pending_review',
   `is_featured` tinyint(1) DEFAULT 0,
   `trending` tinyint(1) DEFAULT 0,
   `youtube_link` varchar(255) DEFAULT NULL,
@@ -436,6 +436,13 @@ SET `country` = NULL
 WHERE `id` = 2;
 
 UPDATE `users` SET `email` = 'ssmith@echoestoday.com' WHERE `id` = 2;
+
+-- Mark some articles as rejected
+UPDATE articles SET status = 'rejected' WHERE id IN (6, 10, 13, 29);
+
+-- Mark some articles as pending_review
+UPDATE articles SET status = 'pending_review' WHERE id IN (7, 17, 20, 30);
+UPDATE articles SET view_count = 0 WHERE status = 'pending_review';
 
 COMMIT;
 
