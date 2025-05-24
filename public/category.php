@@ -16,106 +16,7 @@ if (empty($slug)) {
     exit();
 }
 
-// Get category details
-$cat_query = "SELECT id, name, slug, description FROM categories WHERE slug = ? AND is_active = 1";
-$stmt = $conn->prepare($cat_query);
-$stmt->bind_param("s", $slug);
-$stmt->execute();
-$result = $stmt->get_result();
-
-if ($result->num_rows === 0) {
-    // Category not found or not active
-    header('Location: index.php');
-    exit();
-}
-
-$category = $result->fetch_assoc();
-$category_id = $category['id'];
-
-// Get all categories for navigation
-$all_categories_query = "SELECT id, name, slug FROM categories WHERE is_active = 1 ORDER BY display_order ASC";
-$categories = $conn->query($all_categories_query);
-
-// Pagination settings
-$articles_per_page = 9;
-$page = isset($_GET['page']) ? (int) $_GET['page'] : 1;
-$page = max(1, $page); // Ensure page is at least 1
-$offset = ($page - 1) * $articles_per_page;
-
-// Sorting options
-$sort_options = [
-    'newest' => 'a.published_at DESC',
-    'oldest' => 'a.published_at ASC',
-    'most_viewed' => 'a.view_count DESC',
-    'title_az' => 'a.title ASC',
-    'title_za' => 'a.title DESC'
-];
-
-$sort = isset($_GET['sort']) && array_key_exists($_GET['sort'], $sort_options) ? $_GET['sort'] : 'newest';
-$order_by = $sort_options[$sort];
-
-// Count total articles in this category
-$count_query = "SELECT COUNT(*) AS total FROM articles a WHERE a.category_id = ? AND a.status = 'published'";
-$stmt = $conn->prepare($count_query);
-$stmt->bind_param("i", $category_id);
-$stmt->execute();
-$count_result = $stmt->get_result();
-$total_articles = $count_result->fetch_assoc()['total'];
-
-// Calculate total pages
-$total_pages = ceil($total_articles / $articles_per_page);
-$page = min($page, max(1, $total_pages)); // Ensure page doesn't exceed total pages
-
-// Get featured article for this category (most recent with highest views)
-$featured_query = "SELECT a.*, CONCAT(u.first_name, ' ', u.last_name) as author_name
-                   FROM articles a 
-                   JOIN users u ON a.author_id = u.id 
-                   WHERE a.category_id = ? AND a.status = 'published'
-                   ORDER BY a.view_count DESC, a.published_at DESC 
-                   LIMIT 1";
-$stmt = $conn->prepare($featured_query);
-$stmt->bind_param("i", $category_id);
-$stmt->execute();
-$featured_article = $stmt->get_result()->fetch_assoc();
-
-// If we have a featured article, exclude it from the regular listing
-$featured_exclusion = $featured_article ? "AND a.id != " . $featured_article['id'] : "";
-
-// Get articles for this category
-$articles_query = "SELECT a.*, CONCAT(u.first_name, ' ', u.last_name) as author_name 
-                  FROM articles a 
-                  JOIN users u ON a.author_id = u.id 
-                  WHERE a.category_id = ? AND a.status = 'published' 
-                  $featured_exclusion
-                  ORDER BY $order_by 
-                  LIMIT ? OFFSET ?";
-$stmt = $conn->prepare($articles_query);
-$stmt->bind_param("iii", $category_id, $articles_per_page, $offset);
-$stmt->execute();
-$articles = $stmt->get_result();
-
-// Get popular articles from this category
-$popular_query = "SELECT a.id, a.title, a.slug, a.excerpt, a.featured_image, a.published_at, a.view_count, 
-                 CONCAT(u.first_name, ' ', u.last_name) as author_name 
-                 FROM articles a 
-                 JOIN users u ON a.author_id = u.id 
-                 WHERE a.category_id = ? AND a.status = 'published'
-                 ORDER BY a.view_count DESC 
-                 LIMIT 5";
-$stmt = $conn->prepare($popular_query);
-$stmt->bind_param("i", $category_id);
-$stmt->execute();
-$popular_articles = $stmt->get_result();
-
-// Get sidebar advertisement
-$sidebar_ad_query = "SELECT * FROM advertisements 
-                   WHERE ad_type = 'sidebar' AND is_active = 1 
-                   AND NOW() BETWEEN start_date AND end_date 
-                   ORDER BY RAND() LIMIT 1";
-$sidebar_ad_result = $conn->query($sidebar_ad_query);
-$sidebar_ad = $sidebar_ad_result->fetch_assoc();
-
-// Time function to format "time ago"
+// Function definitions FIRST
 function time_elapsed_string($datetime)
 {
     $now = new DateTime;
@@ -135,7 +36,6 @@ function time_elapsed_string($datetime)
     return 'just now';
 }
 
-// Get category class for styling
 function getCategoryClass($categoryName)
 {
     $name = strtolower($categoryName);
@@ -160,21 +60,133 @@ function getCategoryClass($categoryName)
     return '';
 }
 
-// Function to generate pagination URL
-function getPaginationUrl($page, $sort)
+function getImagePath($imagePath, $default = 'https://source.unsplash.com/random/400x250/?news')
+{
+    if (empty($imagePath)) {
+        return $default;
+    }
+    $filename = basename($imagePath);
+    $local_path = __DIR__ . '/../uploads/' . $filename;
+    if (file_exists($local_path)) {
+        return 'image.php?file=' . urlencode($filename);
+    }
+    return $default;
+}
+
+function getPaginationUrl($page_param, $sort_param) // Renamed params for clarity
 {
     global $slug;
-    return "category.php?slug=" . urlencode($slug) . "&sort=" . urlencode($sort) . "&page=" . $page;
+    return "category.php?slug=" . urlencode($slug) . "&sort=" . urlencode($sort_param) . "&page=" . $page_param;
 }
 
-// Function to generate sort URL
-function getSortUrl($sort)
+function getSortUrl($new_sort_value) // Renamed param for clarity
 {
-    global $slug, $page;
-    return "category.php?slug=" . urlencode($slug) . "&sort=" . urlencode($sort) . "&page=" . $page;
+    global $slug; // We only need the slug from the global scope
+    // When changing the sort order, always direct to page 1
+    return "category.php?slug=" . urlencode($slug) . "&sort=" . urlencode($new_sort_value) . "&page=1";
 }
+
+// Get category details
+$cat_query = "SELECT id, name, slug, description FROM categories WHERE slug = ? AND is_active = 1";
+$stmt = $conn->prepare($cat_query);
+$stmt->bind_param("s", $slug);
+$stmt->execute();
+$result = $stmt->get_result();
+
+if ($result->num_rows === 0) {
+    // Category not found or not active
+    header('Location: index.php');
+    exit();
+}
+
+$category = $result->fetch_assoc();
+$category_id = $category['id'];
+
+// Get all categories for navigation
+$all_categories_query = "SELECT id, name, slug FROM categories WHERE is_active = 1 ORDER BY display_order ASC";
+$categories = $conn->query($all_categories_query);
+
+// Pagination settings
+$articles_per_page = 9; // Or your preferred number
+$page = isset($_GET['page']) ? (int) $_GET['page'] : 1;
+$page = max(1, $page); // Ensure page is at least 1
+$offset = ($page - 1) * $articles_per_page;
+
+// Sorting options
+$sort_options = [
+    'newest' => 'a.published_at DESC',
+    'oldest' => 'a.published_at ASC',
+    'most_viewed' => 'a.view_count DESC',
+    'title_az' => 'a.title ASC',
+    'title_za' => 'a.title DESC',
+];
+
+$sort = isset($_GET['sort']) && array_key_exists($_GET['sort'], $sort_options)
+    ? $_GET['sort']
+    : 'newest'; // Default sort
+$order_by = $sort_options[$sort];
+
+// Count total articles in this category
+$count_query = "SELECT COUNT(*) AS total FROM articles a WHERE a.category_id = ? AND a.status = 'published'";
+$stmt = $conn->prepare($count_query);
+$stmt->bind_param("i", $category_id);
+$stmt->execute();
+$count_result = $stmt->get_result();
+$total_articles = $count_result->fetch_assoc()['total'];
+
+// Calculate total pages
+$total_pages = ceil($total_articles / $articles_per_page);
+$page = min($page, max(1, $total_pages)); // Ensure page doesn't exceed total pages
+
+// Get articles for the current page and category with sorting
+$articles_query = "SELECT a.*, CONCAT(u.first_name, ' ', u.last_name) as author_name 
+                   FROM articles a
+                   JOIN users u ON a.author_id = u.id
+                   WHERE a.category_id = ? AND a.status = 'published'
+                   ORDER BY $order_by
+                   LIMIT ? OFFSET ?";
+$stmt_articles = $conn->prepare($articles_query);
+// Note: The order of bind_param types must match the placeholders: category_id (i), limit (i), offset (i)
+$stmt_articles->bind_param("iii", $category_id, $articles_per_page, $offset);
+$stmt_articles->execute();
+$articles_result = $stmt_articles->get_result();
+
+// Get popular articles from this category
+$popular_query = "SELECT a.id, a.title, a.slug, a.excerpt, a.featured_image, a.published_at, a.view_count, 
+                 CONCAT(u.first_name, ' ', u.last_name) as author_name 
+                 FROM articles a 
+                 JOIN users u ON a.author_id = u.id 
+                 WHERE a.category_id = ? AND a.status = 'published'
+                 ORDER BY a.view_count DESC 
+                 LIMIT 5";
+$stmt = $conn->prepare($popular_query);
+$stmt->bind_param("i", $category_id);
+$stmt->execute();
+$popular_articles = $stmt->get_result();
+
+// Get sidebar advertisement
+$sidebar_ad_query = "SELECT * FROM advertisements 
+                   WHERE ad_type = 'sidebar' AND is_active = 1 
+                   AND NOW() BETWEEN start_date AND end_date 
+                   ORDER BY RAND() LIMIT 1";
+$sidebar_ad_result = $conn->query($sidebar_ad_query);
+$sidebar_ad = $sidebar_ad_result->fetch_assoc();
+
+// Process the image path for sidebar ad
+if ($sidebar_ad && !empty($sidebar_ad['image_path'])) {
+    $sidebar_ad['image_path'] = getImagePath($sidebar_ad['image_path'], 'https://source.unsplash.com/random/300x250/?advertisement');
+}
+
+// Get header advertisement (banner)
+$banner_ad_query = "SELECT * FROM advertisements 
+                   WHERE ad_type = 'banner' AND is_active = 1 
+                   AND NOW() BETWEEN start_date AND end_date 
+                   ORDER BY RAND() LIMIT 1";
+$banner_ad_result = $conn->query($banner_ad_query);
+$banner_ad = $banner_ad_result->fetch_assoc();
 
 $categoryClass = getCategoryClass($category['name']);
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -216,12 +228,24 @@ $categoryClass = getCategoryClass($category['name']);
     <header>
         <div class="container">
             <div class="logo">
-                <h1><a href="index.php">ECHOES TODAY</a></h1>
+                <h1><a href="index.php">ECHOES OF TODAY</a></h1>
                 <p class="tagline">The Voice of Our Times</p>
             </div>
             <div class="header-ad"></div>
             <div class="ad-space">
-                <div class="ad-placeholder">Advertisement</div>
+                <?php if ($banner_ad): ?>
+                    <a href="ad_click.php?ad_id=<?php echo $banner_ad['id']; ?>" target="_blank"
+                        data-ad-id="<?php echo $banner_ad['id']; ?>">
+                        <?php
+                        $img = getImagePath($banner_ad['image_path'], 'https://source.unsplash.com/random/728x90/?advertisement');
+                        ?>
+                        <img src="<?php echo htmlspecialchars($img); ?>"
+                            alt="<?php echo htmlspecialchars($banner_ad['name']); ?>"
+                            width="<?php echo $banner_ad['width']; ?>" height="<?php echo $banner_ad['height']; ?>">
+                    </a>
+                <?php else: ?>
+                    <div class="ad-placeholder">Advertisement</div>
+                <?php endif; ?>
             </div>
         </div>
     </header>
@@ -356,50 +380,18 @@ $categoryClass = getCategoryClass($category['name']);
                             <p>There are currently no published articles in this category.</p>
                         </div>
                     <?php else: ?>
-                        <!-- Featured Category Article -->
-                        <?php if ($featured_article): ?>
-                            <div class="featured-category-article">
-                                <div class="featured-image">
-                                    <a href="article.php?slug=<?php echo htmlspecialchars($featured_article['slug']); ?>">
-                                        <?php if ($featured_article['featured_image']): ?>
-                                            <img src="<?php echo htmlspecialchars($featured_article['featured_image']); ?>"
-                                                alt="<?php echo htmlspecialchars($featured_article['title']); ?>">
-                                        <?php else: ?>
-                                            <img src="https://source.unsplash.com/random/1200x600/?<?php echo htmlspecialchars($slug); ?>"
-                                                alt="<?php echo htmlspecialchars($category['name']); ?>">
-                                        <?php endif; ?>
-                                    </a>
-                                </div>
-                                <div class="featured-content">
-                                    <h2>
-                                        <a href="article.php?slug=<?php echo htmlspecialchars($featured_article['slug']); ?>">
-                                            <?php echo htmlspecialchars($featured_article['title']); ?>
-                                        </a>
-                                    </h2>
-                                    <p class="featured-excerpt"><?php echo htmlspecialchars($featured_article['excerpt']); ?>
-                                    </p>
-                                    <div class="meta-info">
-                                        <span
-                                            class="time"><?php echo time_elapsed_string($featured_article['published_at']); ?></span>
-                                        <span class="author">By
-                                            <?php echo htmlspecialchars($featured_article['author_name']); ?></span>
-                                        <span class="views"><i class="fas fa-eye"></i>
-                                            <?php echo number_format($featured_article['view_count']); ?></span>
-                                    </div>
-                                </div>
-                            </div>
-                        <?php endif; ?>
-
                         <!-- Articles Grid / List -->
                         <div id="articlesContainer" class="news-grid category-grid">
-                            <?php if ($articles->num_rows > 0): ?>
-                                <?php while ($article = $articles->fetch_assoc()): ?>
+                            <?php if ($articles_result->num_rows > 0): ?>
+                                <?php while ($article = $articles_result->fetch_assoc()): ?>
                                     <div class="news-item">
                                         <div class="news-item-image">
                                             <a href="article.php?slug=<?php echo htmlspecialchars($article['slug']); ?>">
                                                 <?php if ($article['featured_image']): ?>
-                                                    <img src="<?php echo htmlspecialchars($article['featured_image']); ?>"
-                                                        alt="<?php echo htmlspecialchars($article['title']); ?>">
+                                                    <img src="<?php
+                                                    $img = getImagePath($article['featured_image']);
+                                                    echo htmlspecialchars($img);
+                                                    ?>" alt="<?php echo htmlspecialchars($article['title']); ?>">
                                                 <?php else: ?>
                                                     <img src="https://source.unsplash.com/random/300x200/?<?php echo htmlspecialchars($slug); ?>"
                                                         alt="<?php echo htmlspecialchars($category['name']); ?>">
@@ -424,6 +416,14 @@ $categoryClass = getCategoryClass($category['name']);
                                         </div>
                                     </div>
                                 <?php endwhile; ?>
+                            <?php else: ?>
+                                <!-- This part should ideally not be reached if $total_articles > 0 and $articles_result has no rows,
+                                     but it's good for robustness or if the main query somehow fails after the count. -->
+                                <div class="no-articles">
+                                    <i class="fas fa-newspaper"></i>
+                                    <h3>No articles found for the current page.</h3>
+                                    <p>Please check other pages or refine your sort criteria.</p>
+                                </div>
                             <?php endif; ?>
                         </div>
 
@@ -483,8 +483,10 @@ $categoryClass = getCategoryClass($category['name']);
                                     <div class="popular-item-image">
                                         <a href="article.php?slug=<?php echo htmlspecialchars($popular['slug']); ?>">
                                             <?php if ($popular['featured_image']): ?>
-                                                <img src="<?php echo htmlspecialchars($popular['featured_image']); ?>"
-                                                    alt="<?php echo htmlspecialchars($popular['title']); ?>">
+                                                <img src="<?php
+                                                $img = getImagePath($popular['featured_image']);
+                                                echo htmlspecialchars($img);
+                                                ?>" alt="<?php echo htmlspecialchars($popular['title']); ?>">
                                             <?php else: ?>
                                                 <img src="https://source.unsplash.com/random/100x100/?<?php echo htmlspecialchars($slug); ?>"
                                                     alt="Popular <?php echo htmlspecialchars($category['name']); ?> News">
@@ -557,10 +559,12 @@ $categoryClass = getCategoryClass($category['name']);
                         <div class="sidebar-header">Advertisement</div>
                         <div class="sidebar-content">
                             <?php if ($sidebar_ad): ?>
-                                <a href="<?php echo htmlspecialchars($sidebar_ad['redirect_url']); ?>" target="_blank"
-                                    class="sidebar-ad">
+                                <a href="ad_click.php?ad_id=<?php echo $sidebar_ad['id']; ?>" target="_blank"
+                                    class="sidebar-ad" data-ad-id="<?php echo $sidebar_ad['id']; ?>">
                                     <img src="<?php echo htmlspecialchars($sidebar_ad['image_path']); ?>"
-                                        alt="<?php echo htmlspecialchars($sidebar_ad['name']); ?>">
+                                        alt="<?php echo htmlspecialchars($sidebar_ad['name']); ?>"
+                                        width="<?php echo $sidebar_ad['width']; ?>"
+                                        height="<?php echo $sidebar_ad['height']; ?>">
                                 </a>
                             <?php else: ?>
                                 <div class="sidebar-ad">Advertisement</div>

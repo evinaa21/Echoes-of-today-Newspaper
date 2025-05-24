@@ -68,15 +68,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Simulate loading more articles
-    const viewAllLinks = document.querySelectorAll('.view-all');
-    viewAllLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
-            e.preventDefault();
-            const categoryName = this.closest('.news-category').querySelector('h2').textContent;
-            alert(`Loading more articles from ${categoryName} category...\nThis would normally load or redirect to more content.`);
-        });
-    });
 
     // View switching
     const viewButtons = document.querySelectorAll('.view-option');
@@ -108,4 +99,33 @@ document.addEventListener('DOMContentLoaded', function() {
             if (button) button.click();
         }
     }
+
+
+    // Track ad impressions
+    function trackImpression(adId) {
+        fetch('track_impression.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: 'ad_id=' + adId
+        });
+    }
+
+    // Track impressions when ads are visible
+    const ads = document.querySelectorAll('[data-ad-id]');
+    if (ads.length) {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const adId = entry.target.getAttribute('data-ad-id');
+                    trackImpression(adId);
+                    observer.unobserve(entry.target); // Only track once per page load
+                }
+            });
+        }, { threshold: 0.5 });
+
+        ads.forEach(ad => observer.observe(ad));
+    }
+
 });

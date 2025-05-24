@@ -24,13 +24,23 @@ $categories = $conn->query($cat_query);
 // Get article details
 $article_query = "SELECT a.*, c.name as category_name, c.slug as category_slug, 
                  CONCAT(u.first_name, ' ', u.last_name) as author_name,
-                 u.profile_image as author_image, u.bio as author_bio 
+                 u.profile_image as author_image, u.bio as author_bio,
+                 a.youtube_link  /* Changed from a.video_url to a.youtube_link */
                  FROM articles a 
                  JOIN categories c ON a.category_id = c.id 
                  JOIN users u ON a.author_id = u.id 
                  WHERE a.slug = ? AND a.status = 'published'";
 
 $stmt = $conn->prepare($article_query);
+
+// Add this error checking block
+if ($stmt === false) {
+    // Log error to PHP error log (recommended for production)
+    error_log('MySQL prepare error: ' . $conn->error);
+    // Display error for debugging (remove or comment out for production)
+    die('Error preparing statement for article details: ' . htmlspecialchars($conn->error));
+}
+
 $stmt->bind_param("s", $slug);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -42,12 +52,6 @@ if ($result->num_rows === 0) {
 }
 
 $article = $result->fetch_assoc();
-
-// Update view count
-$update_views = "UPDATE articles SET view_count = view_count + 1 WHERE id = ?";
-$stmt = $conn->prepare($update_views);
-$stmt->bind_param("i", $article['id']);
-$stmt->execute();
 
 // Get article tags
 $tags_query = "SELECT t.name, t.id FROM tags t
@@ -93,6 +97,15 @@ $article_ad_query = "SELECT * FROM advertisements
                    ORDER BY RAND() LIMIT 1";
 $article_ad_result = $conn->query($article_ad_query);
 $article_ad = $article_ad_result->fetch_assoc();
+
+// Add this query after line 85 (after the article_ad_query)
+// Get header advertisement (banner)
+$banner_ad_query = "SELECT * FROM advertisements 
+                   WHERE ad_type = 'banner' AND is_active = 1 
+                   AND NOW() BETWEEN start_date AND end_date 
+                   ORDER BY RAND() LIMIT 1";
+$banner_ad_result = $conn->query($banner_ad_query);
+$banner_ad = $banner_ad_result->fetch_assoc();
 
 // Time function to format "time ago"
 function time_elapsed_string($datetime)
@@ -154,6 +167,83 @@ function formatArticleContent($content)
 
     return $formatted;
 }
+
+// Replace the existing getImagePath function with this corrected one:
+function getImagePath($imagePath, $default = 'https://source.unsplash.com/random/400x250/?news')
+{
+    // If no image path is provided, return the default placeholder
+    if (empty($imagePath)) {
+        return $default;
+    }
+
+    // Check if it's already a full URL
+    if (filter_var($imagePath, FILTER_VALIDATE_URL)) {
+        return $imagePath;
+    }
+
+    // Handle journalist uploads directory - the path in DB is 'journalist/uploads/2.png'
+    if (strpos($imagePath, 'journalist/uploads/') === 0) {
+        // Check if file exists in the journalist folder
+        $local_path = __DIR__ . '/../' . $imagePath; // This points to ../journalist/uploads/2.png
+
+        if (file_exists($local_path)) {
+            return '../' . $imagePath; // Return: ../journalist/uploads/2.png
+        }
+    }
+
+    // Extract the filename safely for regular uploads
+    $filename = basename($imagePath);
+
+    // Full path on the server (outside public folder)
+    $local_path = __DIR__ . '/../uploads/' . $filename;
+
+    // If the file exists in the uploads directory, return image.php URL
+    if (file_exists($local_path)) {
+        return 'image.php?file=' . urlencode($filename);
+    }
+
+    // Fallback to default
+    return $default;
+}
+
+// Function to extract YouTube Video ID from URL
+function getYouTubeVideoId($url)
+{
+    $video_id = false;
+    $url_parts = parse_url($url);
+    if (isset($url_parts['query'])) {
+        parse_str($url_parts['query'], $query_params);
+        if (isset($query_params['v'])) {
+            $video_id = $query_params['v'];
+        }
+    } elseif (isset($url_parts['path'])) {
+        $path_parts = explode('/', trim($url_parts['path'], '/'));
+        if ($url_parts['host'] == 'youtu.be' && isset($path_parts[0])) {
+            $video_id = $path_parts[0];
+        } elseif (in_array('embed', $path_parts) && isset($path_parts[array_search('embed', $path_parts) + 1])) {
+            $video_id = $path_parts[array_search('embed', $path_parts) + 1];
+        }
+    }
+    // Basic check for valid YouTube ID characters
+    if ($video_id && !preg_match('/^[a-zA-Z0-9_-]{11}$/', $video_id)) {
+        return false;
+    }
+    return $video_id;
+}
+
+// Replace hardcoded image paths with getImagePath function
+$article['featured_image'] = getImagePath($article['featured_image']);
+
+if ($sidebar_ad) {
+    $sidebar_ad['image_path'] = getImagePath($sidebar_ad['image_path']);
+}
+if ($article_ad) {
+    $article_ad['image_path'] = getImagePath($article_ad['image_path']);
+}
+
+// Add this line after line 232 (after processing the article featured image)
+$article['author_image'] = getImagePath($article['author_image']);
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -201,12 +291,24 @@ function formatArticleContent($content)
     <header>
         <div class="container">
             <div class="logo">
-                <h1><a href="index.php">ECHOES TODAY</a></h1>
+                <h1><a href="index.php">ECHOES OF TODAY</a></h1>
                 <p class="tagline">The Voice of Our Times</p>
             </div>
             <div class="header-ad"></div>
             <div class="ad-space">
-                <div class="ad-placeholder">Advertisement</div>
+                <?php if ($banner_ad): ?>
+                    <a href="ad_click.php?ad_id=<?php echo $banner_ad['id']; ?>" target="_blank"
+                        data-ad-id="<?php echo $banner_ad['id']; ?>">
+                        <?php
+                        $img = getImagePath($banner_ad['image_path'], 'https://source.unsplash.com/random/728x90/?advertisement');
+                        ?>
+                        <img src="<?php echo htmlspecialchars($img); ?>"
+                            alt="<?php echo htmlspecialchars($banner_ad['name']); ?>"
+                            width="<?php echo $banner_ad['width']; ?>" height="<?php echo $banner_ad['height']; ?>">
+                    </a>
+                <?php else: ?>
+                    <div class="ad-placeholder">Advertisement</div>
+                <?php endif; ?>
             </div>
         </div>
     </header>
@@ -287,7 +389,7 @@ function formatArticleContent($content)
         <div class="container">
             <div class="two-column-layout article-layout">
                 <div class="main-content">
-                    <article class="article-detail">
+                    <article class="article-detail" data-article-id="<?php echo $article['id']; ?>">
                         <header class="article-header">
                             <span class="category-label <?php echo getCategoryClass($article['category_name']); ?>">
                                 <?php echo htmlspecialchars($article['category_name']); ?>
@@ -340,6 +442,18 @@ function formatArticleContent($content)
                             <?php echo htmlspecialchars($article['excerpt']); ?>
                         </div>
 
+                        <!-- YouTube Video Embed -->
+                        <?php
+                        if (!empty($article['youtube_link'])) { // Changed from $article['video_url']
+                            $youtube_video_id = getYouTubeVideoId($article['youtube_link']); // Changed from $article['video_url']
+                            if ($youtube_video_id) {
+                                echo '<div class="article-video-container">';
+                                echo '<iframe width="560" height="315" src="https://www.youtube.com/embed/' . htmlspecialchars($youtube_video_id) . '" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>';
+                                echo '</div>';
+                            }
+                        }
+                        ?>
+
                         <!-- Share buttons -->
                         <div class="share-buttons">
                             <span class="share-text">Share this article:</span>
@@ -368,10 +482,16 @@ function formatArticleContent($content)
                             <!-- In-article advertisement -->
                             <?php if ($article_ad): ?>
                                 <div class="in-article-ad">
-                                    <div class="ad-label">Advertisement</div>
-                                    <a href="<?php echo htmlspecialchars($article_ad['redirect_url']); ?>" target="_blank">
-                                        <img src="<?php echo htmlspecialchars($article_ad['image_path']); ?>"
-                                            alt="<?php echo htmlspecialchars($article_ad['name']); ?>">
+                                    <span class="ad-label">Advertisement</span>
+                                    <a href="ad_click.php?ad_id=<?php echo $article_ad['id']; ?>" target="_blank"
+                                        data-ad-id="<?php echo $article_ad['id']; ?>">
+                                        <?php
+                                        $img = getImagePath($article_ad['image_path'], 'https://source.unsplash.com/random/400x200/?advertisement');
+                                        ?>
+                                        <img src="<?php echo htmlspecialchars($img); ?>"
+                                            alt="<?php echo htmlspecialchars($article_ad['name']); ?>"
+                                            width="<?php echo $article_ad['width']; ?>"
+                                            height="<?php echo $article_ad['height']; ?>">
                                     </a>
                                 </div>
                             <?php endif; ?>
@@ -414,13 +534,14 @@ function formatArticleContent($content)
                                 <?php while ($related = $related_articles->fetch_assoc()): ?>
                                     <div class="news-item">
                                         <div class="news-item-image">
-                                            <?php if (!empty($related['featured_image'])): ?>
-                                                <img src="<?php echo htmlspecialchars($related['featured_image']); ?>"
-                                                    alt="<?php echo htmlspecialchars($related['title']); ?>">
-                                            <?php else: ?>
-                                                <img src="https://source.unsplash.com/random/300x200/?<?php echo htmlspecialchars($article['category_slug']); ?>"
-                                                    alt="Related article">
-                                            <?php endif; ?>
+                                            <?php
+                                            $related_img_src = getImagePath(
+                                                $related['featured_image'], // Use the field from DB
+                                                'https://source.unsplash.com/random/300x200/?' . htmlspecialchars($article['category_slug']) // Default fallback
+                                            );
+                                            ?>
+                                            <img src="<?php echo htmlspecialchars($related_img_src); ?>"
+                                                alt="<?php echo htmlspecialchars($related['title']); ?>">
                                         </div>
                                         <div class="news-item-content">
                                             <h3>
@@ -448,15 +569,22 @@ function formatArticleContent($content)
                     <div class="sidebar-section">
                         <div class="sidebar-header">Most Read</div>
                         <div class="sidebar-content">
+                            <?php
+                            // If $popular_articles might have been iterated before (e.g., due to previously un-commented code),
+                            // you might need mysqli_data_seek($popular_articles, 0); here.
+                            // However, based on the provided code, it should be fine.
+                            ?>
                             <?php while ($popular = $popular_articles->fetch_assoc()): ?>
                                 <div class="popular-item">
                                     <div class="popular-item-image">
-                                        <?php if ($popular['featured_image']): ?>
-                                            <img src="<?php echo htmlspecialchars($popular['featured_image']); ?>"
-                                                alt="<?php echo htmlspecialchars($popular['title']); ?>">
-                                        <?php else: ?>
-                                            <img src="https://source.unsplash.com/random/100x100/?trending" alt="Popular News">
-                                        <?php endif; ?>
+                                        <?php
+                                        $popular_img_src = getImagePath(
+                                            $popular['featured_image'], // Use the field from DB
+                                            'https://source.unsplash.com/random/100x100/?trending' // Default fallback
+                                        );
+                                        ?>
+                                        <img src="<?php echo htmlspecialchars($popular_img_src); ?>"
+                                            alt="<?php echo htmlspecialchars($popular['title']); ?>">
                                     </div>
                                     <div class="popular-item-content">
                                         <h4>
@@ -516,10 +644,16 @@ function formatArticleContent($content)
                         <div class="sidebar-header">Advertisement</div>
                         <div class="sidebar-content">
                             <?php if ($sidebar_ad): ?>
-                                <a href="<?php echo htmlspecialchars($sidebar_ad['redirect_url']); ?>" target="_blank"
-                                    class="sidebar-ad">
+                                <a href="ad_click.php?ad_id=<?php echo $sidebar_ad['id']; ?>" target="_blank"
+                                    class="sidebar-ad" data-ad-id="<?php echo $sidebar_ad['id']; ?>">
+                                    <?php
+                                    // REMOVE this line - the image path is already processed above
+                                    // $img = getImagePath($sidebar_ad['image_path'], 'https://source.unsplash.com/random/300x250/?advertisement');
+                                    ?>
                                     <img src="<?php echo htmlspecialchars($sidebar_ad['image_path']); ?>"
-                                        alt="<?php echo htmlspecialchars($sidebar_ad['name']); ?>">
+                                        alt="<?php echo htmlspecialchars($sidebar_ad['name']); ?>"
+                                        width="<?php echo $sidebar_ad['width']; ?>"
+                                        height="<?php echo $sidebar_ad['height']; ?>">
                                 </a>
                             <?php else: ?>
                                 <div class="sidebar-ad">Advertisement</div>
@@ -591,6 +725,7 @@ function formatArticleContent($content)
     </footer>
 
     <script src="js/script.js"></script>
+    <script src="js/article.js"></script>
 </body>
 
 </html>
