@@ -1,17 +1,15 @@
 <?php
 session_start();
 require '../includes/db_connection.php';
-include("header.php");
-include("journalistNavBar.php");
-//$id = $_POST['id'] ?? $_GET['id'] ?? '';
 
-$id=$_SESSION['user_id'] ?? 2;
-$id=intval($id);
+$id = $_SESSION['user_id'] ?? 2;
+$id = intval($id);
 
-if (empty($id)) {
-    header('Location: users.php');
-    exit;
-}
+
+// if (isset($id)) {
+//     header('Location: users.php');
+//     exit;
+// }
 
 $stmt = $conn->prepare("SELECT * FROM users WHERE id = ?");
 $stmt->bind_param("i", $id);
@@ -192,7 +190,7 @@ input[type="text"], input[type="password"] {
 <body>
     <div class="container">
         <div class="card">
-            
+            <img src="assets\images\logo.png" alt="Newspaper Logo" class="logo">
             <h1 class="title">Change Password</h1>
             <p class="subtitle">Enter a new password for your account</p>
 
