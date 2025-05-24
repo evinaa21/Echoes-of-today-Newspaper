@@ -643,10 +643,6 @@ function getImagePath($imagePath, $default = 'https://source.unsplash.com/random
 
 </html>
 
-<?php
-// Close database connection
-$conn->close();
-?>
         </div>
     </footer>
 
