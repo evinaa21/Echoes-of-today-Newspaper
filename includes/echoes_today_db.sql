@@ -435,6 +435,8 @@ UPDATE `users`
 SET `country` = NULL
 WHERE `id` = 2;
 
+UPDATE `users` SET `email` = 'ssmith@echoestoday.com' WHERE `id` = 2;
+
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

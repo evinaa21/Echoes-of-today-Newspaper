@@ -4,6 +4,8 @@ include_once('../includes/db_connection.php');
 
 $userId = $_SESSION['user_id'] ?? 2;
 $userId = intval($userId);
+
+// ✅ Handle POST update and set session for success modal
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $first_name = $_POST['first_name'] ?? '';
   $last_name = $_POST['last_name'] ?? '';
@@ -16,10 +18,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $update_stmt->bind_param("ssssssi", $first_name, $last_name, $address, $zip_code, $city, $country, $userId);
   $update_stmt->execute();
   $update_stmt->close();
+
+  $_SESSION['show_success_modal'] = true;
   header("Location: " . $_SERVER['PHP_SELF']);
   exit();
 }
 
+// ✅ Check if modal should be shown
+$showModal = false;
+if (isset($_SESSION['show_success_modal'])) {
+  $showModal = true;
+  unset($_SESSION['show_success_modal']);
+}
+
+// ✅ Fetch current user data
 $stmt = $conn->prepare("SELECT username, email, role, first_name, last_name, bio, profile_image, address, zip_code, city, mobile, country FROM users WHERE id = ?");
 $stmt->bind_param("i", $userId);
 $stmt->execute();
@@ -184,7 +196,32 @@ $image = $profile_image ? "uploads/2.png" : "uploads/2.png";
     </div>
   </div>
 
+  <!-- ✅ Success Modal -->
+  <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-success">
+        <div class="modal-header bg-success text-white">
+          <h5 class="modal-title" id="successModalLabel">Success</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-center">
+          ✅ Your profile information has been successfully updated.
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-success" data-bs-dismiss="modal">OK</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <?php if ($showModal): ?>
+  <script>
+    const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+    successModal.show();
+  </script>
+  <?php endif; ?>
 </body>
 
 </html>
