@@ -2,6 +2,7 @@
 session_start();
 require '../includes/db_connection.php';
 
+
 $id = $_SESSION['user_id'] ?? 2;
 $id = intval($id);
 
@@ -182,6 +183,11 @@ input[type="text"], input[type="password"] {
 </style>
 </head>
 <body>
+    <div class="d-flex">
+    <?php include('journalistNavBar.php'); ?>
+
+    <div class="container-fluid p-0" style="margin-left: 250px;">
+      <?php include('header.php'); ?>
     <div class="container">
         <div class="card">
             <h1 class="title">Change Password</h1>
@@ -216,6 +222,9 @@ input[type="text"], input[type="password"] {
                 </div>
             </form>
         </div>
+        </div>
+        </div>
     </div>
+  
 </body>
 </html>
