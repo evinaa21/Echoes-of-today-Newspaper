@@ -263,12 +263,23 @@ function highlightSearchTerm($text, $query)
     <header>
         <div class="container">
             <div class="logo">
-                <h1><a href="index.php">ECHOES TODAY</a></h1>
+                <h1><a href="index.php">ECHOES OF TODAY</a></h1>
                 <p class="tagline">The Voice of Our Times</p>
             </div>
             <div class="header-ad"></div>
             <div class="ad-space">
-                <div class="ad-placeholder">Advertisement</div>
+                <?php if ($banner_ad): ?>
+                    <a href="<?php echo htmlspecialchars($banner_ad['redirect_url']); ?>" target="_blank">
+                        <?php
+                        $img = getImagePath($banner_ad['image_path'], 'https://source.unsplash.com/random/728x90/?advertisement');
+                        ?>
+                        <img src="<?php echo htmlspecialchars($img); ?>"
+                            alt="<?php echo htmlspecialchars($banner_ad['name']); ?>"
+                            width="<?php echo $banner_ad['width']; ?>" height="<?php echo $banner_ad['height']; ?>">
+                    </a>
+                <?php else: ?>
+                    <div class="ad-placeholder">Advertisement</div>
+                <?php endif; ?>
             </div>
         </div>
     </header>
