@@ -122,4 +122,8 @@ button[type="submit"]:hover {
   white-space: nowrap;
 }
 
+.is-invalid {
+  border-color: #dc3545;
+}
+
 

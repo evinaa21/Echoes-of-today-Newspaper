@@ -168,7 +168,7 @@ $pageTitles = [
             </td>
             <td><strong><?= htmlspecialchars($row['category_name']) ?></strong></td>
             <td><?= htmlspecialchars($row['title']) ?></td>
-            <td><a href="edit_article.php?id=<?= $row['id'] ?>" class="btn btn-sm btn-outline-info">View News</a></td>
+            <td><a href="view_article.php?id=<?= $row['id'] ?>" class="btn btn-sm btn-outline-info">View Article</a></td>
             <td><?= $row['view_count'] ?></td>
             <td>
               <?php
