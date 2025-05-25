@@ -11,12 +11,6 @@
     <a href="http://localhost/Echoes-of-today-Newspaper/public/index.php" target="_blank" title="Visit Website">
       <i class="fas fa-globe"></i>
     </a>
-    <a href="notifications.php" title="Notifications">
-      <i class="fas fa-bell"></i>
-    </a>
-    <a href="settings.php" title="Settings">
-      <i class="fas fa-wrench"></i>
-    </a>
 
     <div class="profile-dropdown" onclick="toggleDropdown()">
       <img src="uploads/1747995328_adminPfp.png" alt="Profile" class="profile-img">
