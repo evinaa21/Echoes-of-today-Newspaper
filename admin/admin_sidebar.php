@@ -27,14 +27,11 @@
   <a href="#"><i class="fas fa-users"></i> Manage Staff ▾</a>
   <ul class="submenu">
     <li><a href="manage_staff.php?filter=active">Active Staffs</a></li>
-    <li><a href="manage_staff.php?filter=banned">Former Staff</a></li>
-    <li><a href="manage_staff.php?filter=all">All Staffs</a></li>
+    <li><a href="manage_staff.php?filter=former">Former Staff</a></li>
   </ul>
 </li>
 
       <li><a href="report.php"><i class="fas fa-chart-line"></i> Report</a></li>
-      <li><a href="settings.php"><i class="fas fa-cogs"></i> System Setting</a></li>
-      <li><a href="extra.php"><i class="fas fa-puzzle-piece"></i> Extra</a></li>
     </ul>
   </nav>
 

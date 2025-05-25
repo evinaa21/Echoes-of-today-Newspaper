@@ -58,8 +58,14 @@ $counts = mysqli_fetch_assoc($countResult);
 <?php include('admin_header.php'); ?>
 <?php include('admin_sidebar.php'); ?>
 
+
 <div class="main-content px-4 pt-4">
-  <h4 class="mb-1">Staff Detail - <?= htmlspecialchars($user['username']) ?></h4>
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="mb-0">Staff Detail - <?= htmlspecialchars($user['username']) ?></h4>
+    <a href="manage_staff.php" class="btn btn-outline-primary">
+  <i class="fas fa-arrow-left me-1"></i> Back to Staff List
+</a>
+  </div>
 
   <!-- Stats -->
   <div class="row g-3 mb-4">
@@ -142,41 +148,81 @@ $counts = mysqli_fetch_assoc($countResult);
 
   <!-- User Info -->
   <div class="card shadow-sm p-4 rounded-4">
-    <h5 class="mb-3">Information of <?= htmlspecialchars($user['first_name'] . ' ' . $user['last_name']) ?></h5>
-    <form>
-      <div class="row g-3">
-        <div class="col-md-6">
-          <label class="form-label">First Name</label>
-          <input type="text" class="form-control" value="<?= htmlspecialchars($user['first_name']) ?>" disabled>
-        </div>
-        <div class="col-md-6">
-          <label class="form-label">Last Name</label>
-          <input type="text" class="form-control" value="<?= htmlspecialchars($user['last_name']) ?>" disabled>
-        </div>
-        <div class="col-md-6">
-          <label class="form-label">Email</label>
-          <input type="text" class="form-control" value="<?= htmlspecialchars($user['email']) ?>" disabled>
-        </div>
-        <div class="col-md-6">
-          <label class="form-label">Username</label>
-          <input type="text" class="form-control" value="<?= htmlspecialchars($user['username']) ?>" disabled>
-        </div>
-        <div class="col-md-6">
-          <label class="form-label">Role</label>
-          <input type="text" class="form-control" value="<?= htmlspecialchars($user['role']) ?>" disabled>
-        </div>
-        <div class="col-md-6">
-          <label class="form-label">Status</label>
-          <input type="text" class="form-control" value="<?= $user['status'] == 1 ? 'Active' : 'Inactive' ?>" disabled>
-        </div>
-        <div class="col-md-6">
-          <label class="form-label">Joined At</label>
-          <input type="text" class="form-control" value="<?= htmlspecialchars($user['created_at']) ?>" disabled>
-        </div>
-      </div>
-    </form>
+  <h5 class="mb-4">Information of <?= htmlspecialchars($user['username']) ?></h5>
+  <div class="row">
+    <!-- LEFT: Profile Picture and Basic Info -->
+   <div class="col-md-4 d-flex align-items-start justify-content-center">
+  <div class="text-center mt-4">
+    <img src="<?= $user['profile_image'] ? htmlspecialchars($user['profile_image']) : '../uploads/placeholder.png' ?>" 
+         alt="Profile Image" 
+         class="rounded-circle mb-3 img-fluid"
+         style="max-width: 150px; height: 150px; object-fit: cover; border: 3px solid #ddd;">
+    <p class="mb-1 fw-bold"><?= htmlspecialchars($user['first_name'] . ' ' . $user['last_name']) ?></p>
+    <p class="mb-0 text-muted">@<?= htmlspecialchars($user['username']) ?> &bullet; <?= htmlspecialchars($user['role']) ?></p>
   </div>
 </div>
+
+
+
+    <!-- RIGHT: Detailed Info Form -->
+    <div class="col-md-8">
+      <form>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label">First Name</label>
+            <input type="text" class="form-control" value="<?= htmlspecialchars($user['first_name']) ?>" disabled>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Last Name</label>
+            <input type="text" class="form-control" value="<?= htmlspecialchars($user['last_name']) ?>" disabled>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Email</label>
+            <input type="text" class="form-control" value="<?= htmlspecialchars($user['email']) ?>" disabled>
+          </div>
+          <div class="col-md-6">
+          <label class="form-label">Mobile</label>
+          <input type="text" class="form-control" value="<?= htmlspecialchars($user['mobile'] ?? '') ?>" disabled>
+        </div>
+          <div class="col-md-6">
+            <label class="form-label">Username</label>
+            <input type="text" class="form-control" value="<?= htmlspecialchars($user['username']) ?>" disabled>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Role</label>
+            <input type="text" class="form-control" value="<?= htmlspecialchars($user['role']) ?>" disabled>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Status</label>
+            <input type="text" class="form-control" value="<?= ucfirst($user['status']) ?>" disabled>
+
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Joined At</label>
+            <input type="text" class="form-control" value="<?= htmlspecialchars($user['created_at']) ?>" disabled>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Address</label>
+            <input type="text" class="form-control" value="<?= htmlspecialchars($user['address'] ?? '') ?>" disabled>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">City</label>
+            <input type="text" class="form-control" value="<?= htmlspecialchars($user['city'] ?? '') ?>" disabled>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">State</label>
+            <input type="text" class="form-control" value="<?= htmlspecialchars($user['state'] ?? '') ?>" disabled>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Zip Code</label>
+            <input type="text" class="form-control" value="<?= htmlspecialchars($user['zip_code'] ?? '') ?>" disabled>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 
 </body>
 </html>
