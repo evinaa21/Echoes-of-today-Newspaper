@@ -106,10 +106,11 @@ if (!$article) {
       box-shadow: 0 4px 10px rgba(0,0,0,0.05);
     }
     .article-content {
-      white-space: pre-line;
-      line-height: 1.8;
-      font-size: 1.05rem;
-    }
+  font-size: 1.05rem;
+  line-height: 1.5;
+  white-space: normal; 
+}
+
     .back-btn {
       display: inline-block;
       margin-bottom: 25px;
@@ -179,16 +180,18 @@ if (!$article) {
         </div>
 
         <?php if (!empty($article['featured_image'])): ?>
-          <img src="../<?= htmlspecialchars($article['featured_image']) ?>" class="featured-img" alt="Featured Image">
+        <img src="../uploads/<?= htmlspecialchars($article['featured_image']) ?>" class="featured-img" alt="Featured Image">
         <?php endif; ?>
 
-        <div class="mb-4">
-          <span class="tag-badge"><i class="fas fa-eye me-1"></i><?= number_format($article['view_count']) ?> views</span>
-          <span class="tag-badge"><?= $article['tags'] ?: 'No tags' ?></span>
-          <span class="tag-badge"><?= ucfirst($article['status']) ?></span>
-          <?php if ($article['is_featured']) echo '<span class="tag-badge bg-primary text-white">🌟 Featured</span>'; ?>
-          <?php if ($article['trending']) echo '<span class="tag-badge bg-danger text-white">🔥 Trending</span>'; ?>
+
+        <div class="d-flex flex-wrap gap-2 mb-4">
+        <span class="tag-badge"><i class="fas fa-eye me-1"></i><?= number_format($article['view_count']) ?> views</span>
+        <span class="tag-badge"><?= $article['tags'] ?: 'No tags' ?></span>
+        <span class="tag-badge"><?= ucfirst($article['status']) ?></span>
+        <?php if ($article['is_featured']) echo '<span class="tag-badge bg-primary text-white">🌟 Featured</span>'; ?>
+        <?php if ($article['trending']) echo '<span class="tag-badge bg-danger text-white">🔥 Trending</span>'; ?>
         </div>
+
 
         <?php if (!empty($article['excerpt'])): ?>
           <p class="lead"><?= htmlspecialchars($article['excerpt']) ?></p>

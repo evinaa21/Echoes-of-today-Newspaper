@@ -29,7 +29,7 @@ include('../admin/admin_header.php');
     <div class="main-content">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h4>All Categories</h4>
-            <a href="add_category.php" class="btn btn-primary">+ Add Category</a>
+            <a href="edit_category.php" class="btn btn-primary">+ Add Category</a>
         </div>
 
         <?php

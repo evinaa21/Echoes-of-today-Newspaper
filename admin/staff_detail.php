@@ -153,10 +153,16 @@ $counts = mysqli_fetch_assoc($countResult);
     <!-- LEFT: Profile Picture and Basic Info -->
    <div class="col-md-4 d-flex align-items-start justify-content-center">
   <div class="text-center mt-4">
-    <img src="<?= $user['profile_image'] ? htmlspecialchars($user['profile_image']) : '../uploads/placeholder.png' ?>" 
-         alt="Profile Image" 
-         class="rounded-circle mb-3 img-fluid"
-         style="max-width: 150px; height: 150px; object-fit: cover; border: 3px solid #ddd;">
+<?php
+$profileImage = $user['profile_image'] ?? '';
+$imagePath = $profileImage ? '../' . htmlspecialchars($profileImage) : '../uploads/placeholder.png';
+?>
+
+<img src="<?= $imagePath ?>"  
+     alt="Profile Image" 
+     class="rounded-circle mb-3 img-fluid"
+     style="max-width: 150px; height: 150px; object-fit: cover; border: 3px solid #ddd;">
+
     <p class="mb-1 fw-bold"><?= htmlspecialchars($user['first_name'] . ' ' . $user['last_name']) ?></p>
     <p class="mb-0 text-muted">@<?= htmlspecialchars($user['username']) ?> &bullet; <?= htmlspecialchars($user['role']) ?></p>
   </div>

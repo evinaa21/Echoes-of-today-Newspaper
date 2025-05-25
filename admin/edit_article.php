@@ -116,7 +116,7 @@ $categories = mysqli_query($conn, "SELECT id, name FROM categories ORDER BY disp
 
     <!-- Featured Image -->
     <div class="mb-4 text-center">
-      <img src="../<?= htmlspecialchars($article['featured_image']) ?>" class="img-fluid rounded" style="max-height: 300px;" alt="Current Image">
+      <img src="../uploads/<?= htmlspecialchars($article['featured_image']) ?>" class="img-fluid rounded" style="max-height: 300px;" alt="Current Image">
       <p class="mt-2 text-muted">Supported: <strong>.png, .jpg, .jpeg</strong>. Max 900x500px</p>
       <input type="file" name="featured_image" class="form-control mt-2">
     </div>
