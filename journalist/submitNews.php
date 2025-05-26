@@ -18,11 +18,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $youtube_link = $_POST['youtube_link'] ?? null;
     $status = 'pending_review';
 
-    // Handle image upload
     $featured_image = null;
     if (isset($_FILES['featured_image']) && $_FILES['featured_image']['error'] === UPLOAD_ERR_OK) {
         $targetDir = "../uploads/";
-        $filename = basename($_FILES["featured_image"]["name"]);
+        $filename = time() . '_' . basename($_FILES["featured_image"]["name"]);
         $targetFilePath = $targetDir . $filename;
         if (move_uploaded_file($_FILES["featured_image"]["tmp_name"], $targetFilePath)) {
             $featured_image = $filename;
@@ -50,15 +49,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         );
 
         if ($stmt->execute()) {
-            echo "<script>alert('✅ News submitted successfully and is pending review.'); window.location.href='createNews.php';</script>";
+            header("Location: createNews.php?success=1");
+            exit;
         } else {
-            echo "<script>alert('❌ Failed to submit news. Try again later.');</script>";
+            echo "<script>alert('❌ Failed to submit news. Try again later.'); window.location.href='createNews.php';</script>";
         }
 
         $stmt->close();
     } else {
         foreach ($errors as $error) {
-            echo "<script>alert('❌ $error');</script>";
+            echo "<script>alert('❌ $error'); window.location.href='createNews.php';</script>";
         }
     }
 }

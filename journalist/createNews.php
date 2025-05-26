@@ -7,6 +7,9 @@ $journalist_id = intval($journalist_id);
 
 // Fetch categories
 $categories = mysqli_query($conn, "SELECT * FROM categories WHERE is_active = 1 ORDER BY name");
+
+// Show success modal if redirected with ?success=1
+$showSuccessModal = isset($_GET['success']) && $_GET['success'] == 1;
 ?>
 
 <!DOCTYPE html>
@@ -75,14 +78,13 @@ $categories = mysqli_query($conn, "SELECT * FROM categories WHERE is_active = 1 
             <div class="p-4">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h2 class="form-title">Create News</h2>
-                    <a href="allNews.php" class="btn btn-sm btn-back">
+                    <a href="allNews.php" class="btn btn-outline-primary rounded-pill px-4 fw-semibold">
                         <i class="fas fa-arrow-left me-2"></i>Back to All News
                     </a>
                 </div>
 
                 <div class="card form-card">
                     <form action="submitNews.php" method="POST" enctype="multipart/form-data">
-
                         <input type="hidden" name="author_id" value="<?= $journalist_id ?>">
                         <input type="hidden" name="status" value="pending_review">
 
@@ -141,7 +143,6 @@ $categories = mysqli_query($conn, "SELECT * FROM categories WHERE is_active = 1 
                             </div>
                         </div>
 
-                        <!-- YouTube Link (hidden by default) -->
                         <div class="mb-3" id="youtubeLinkSection" style="display: none;">
                             <label class="form-label">YouTube Link</label>
                             <input type="url" name="youtube_link" class="form-control"
@@ -169,29 +170,50 @@ $categories = mysqli_query($conn, "SELECT * FROM categories WHERE is_active = 1 
         </div>
     </div>
 
+    <!-- Success Modal -->
+    <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4 shadow">
+          <div class="modal-header bg-success text-white">
+            <h5 class="modal-title" id="successModalLabel">News Submitted</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body text-center">
+            ✅ Your news has been successfully submitted and is pending review.
+          </div>
+          <div class="modal-footer justify-content-center">
+            <a href="allNews.php" class="btn btn-primary">Go to All News</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <script>
-        function makeSlug() {
-            const title = document.querySelector('[name="title"]').value;
-            const slugField = document.getElementById('slug');
-            const slug = title.toLowerCase().trim().replace(/[^\w ]+/g, '').replace(/ +/g, '-');
-            slugField.value = slug;
-        }
+    function makeSlug() {
+        const title = document.querySelector('[name="title"]').value;
+        const slugField = document.getElementById('slug');
+        const slug = title.toLowerCase().trim().replace(/[^\w ]+/g, '').replace(/ +/g, '-');
+        slugField.value = slug;
+    }
 
-        // Show/hide YouTube section based on "Add Video" switch
-        const hasVideoCheckbox = document.getElementById('hasVideo');
-        const youtubeSection = document.getElementById('youtubeLinkSection');
+    const hasVideoCheckbox = document.getElementById('hasVideo');
+    const youtubeSection = document.getElementById('youtubeLinkSection');
 
-        function toggleYouTubeInput() {
-            youtubeSection.style.display = hasVideoCheckbox.checked ? 'block' : 'none';
-        }
+    function toggleYouTubeInput() {
+        youtubeSection.style.display = hasVideoCheckbox.checked ? 'block' : 'none';
+    }
 
-        // Init on load
-        toggleYouTubeInput();
+    toggleYouTubeInput();
+    hasVideoCheckbox.addEventListener('change', toggleYouTubeInput);
 
-        // Listen for toggle change
-        hasVideoCheckbox.addEventListener('change', toggleYouTubeInput);
-    </script>
+    <?php if ($showSuccessModal): ?>
+    window.addEventListener('DOMContentLoaded', function () {
+        const modal = new bootstrap.Modal(document.getElementById('successModal'));
+        modal.show();
+    });
+    <?php endif; ?>
+</script>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-
 </html>

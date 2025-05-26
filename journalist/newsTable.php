@@ -1,3 +1,35 @@
+<?php
+// session_start();
+require_once '../includes/db_connection.php';
+
+$journalist_id = $_SESSION['user_id'] ?? 2;
+
+// Pagination logic
+$page = isset($_GET['page']) && is_numeric($_GET['page']) ? intval($_GET['page']) : 1;
+$limit = 10;
+$offset = ($page - 1) * $limit;
+
+// Count total articles
+$count_query = "SELECT COUNT(*) as total FROM articles WHERE author_id = $journalist_id";
+$count_result = mysqli_query($conn, $count_query);
+$total_articles = mysqli_fetch_assoc($count_result)['total'];
+$total_pages = ceil($total_articles / $limit);
+
+// Fetch articles with JOIN + pagination
+$articles_query = "
+    SELECT a.*, c.name AS category_name
+    FROM articles a
+    JOIN categories c ON a.category_id = c.id
+    WHERE a.author_id = $journalist_id
+    ORDER BY a.created_at DESC
+    LIMIT $limit OFFSET $offset
+";
+$articles_result = mysqli_query($conn, $articles_query);
+
+// Optional: show edit buttons
+$show_edit_column = true;
+?>
+
 <?php 
 if (!isset($articles_result) || !is_object($articles_result)) {
   echo "<div class='alert alert-danger'>⚠️ No article data available. \$articles_result is not defined or invalid.</div>";
@@ -100,6 +132,25 @@ if (mysqli_num_rows($articles_result) === 0) {
       </tbody>
     </table>
   </div>
+
+  <!-- PAGINATION -->
+  <div class="card-footer bg-white px-3 py-2">
+    <nav aria-label="Article pagination">
+      <ul class="pagination justify-content-center mb-0">
+        <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
+          <a class="page-link" href="?page=<?= max(1, $page - 1) ?>">Previous</a>
+        </li>
+        <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+          <li class="page-item <?= ($i === $page) ? 'active' : '' ?>">
+            <a class="page-link" href="?page=<?= $i ?>"><?= $i ?></a>
+          </li>
+        <?php endfor; ?>
+        <li class="page-item <?= ($page >= $total_pages) ? 'disabled' : '' ?>">
+          <a class="page-link" href="?page=<?= min($total_pages, $page + 1) ?>">Next</a>
+        </li>
+      </ul>
+    </nav>
+  </div>
 </div>
 
 <!-- Delete Confirmation Modal -->
@@ -124,7 +175,7 @@ if (mysqli_num_rows($articles_result) === 0) {
   </div>
 </div>
 
-<!-- Bootstrap JS (make sure it's included) -->
+<!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 function setDeleteArticleId(id) {
