@@ -60,7 +60,7 @@ $result = mysqli_query($conn, $query);
     <tbody>
       <?php while ($ad = mysqli_fetch_assoc($result)) : ?>
         <tr>
-          <td><img src="<?= htmlspecialchars($ad['image_path']) ?>" class="ad-image" alt="Ad"></td>
+          <td><img src="../uploads/<?= htmlspecialchars($ad['image_path']) ?>" class="ad-image" alt="Ad"></td>
           <td><?= htmlspecialchars($ad['name']) ?></td>
           <td><span class="badge bg-info text-dark"><?= htmlspecialchars($ad['ad_type']) ?></span></td>
           <td><?= $ad['width'] ?>×<?= $ad['height'] ?> px</td>

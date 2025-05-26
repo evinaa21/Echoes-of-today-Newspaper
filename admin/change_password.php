@@ -149,7 +149,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <div class="d-flex justify-content-between">
               <button type="submit" class="btn btn-primary">Change Password</button>
-              <a href="profile.php" class="btn btn-secondary">Cancel</a>
+              <a href="admin_profile.php" class="btn btn-secondary">Cancel</a>
             </div>
           </form>
         </div>
