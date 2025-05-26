@@ -2,7 +2,6 @@
 session_start();
 include('../includes/db_connection.php');
 
-// Authenticate user
 $journalist_id = $_SESSION['user_id'] ?? 2;
 $journalist_id = intval($journalist_id);
 
@@ -13,7 +12,7 @@ $allowed_statuses = [
   'pending_review' => 'Pending News'
 ];
 
-// Validate status parameter
+// Validate status
 $status_filter = $_GET['status'] ?? '';
 if (!array_key_exists($status_filter, $allowed_statuses)) {
   die('<div style="padding: 2rem; color: red;">Invalid status parameter.</div>');
@@ -21,14 +20,19 @@ if (!array_key_exists($status_filter, $allowed_statuses)) {
 
 $page_title = $allowed_statuses[$status_filter];
 
-// Fetch categories
-$categories_result = mysqli_query($conn, "SELECT * FROM categories ORDER BY name");
+// Pagination
+$limit = 10;
+$page = isset($_GET['page']) && is_numeric($_GET['page']) ? (int) $_GET['page'] : 1;
+$offset = ($page - 1) * $limit;
 
-// Filter values
+// Filters
 $search = $_GET['search'] ?? '';
 $category = $_GET['category'] ?? 'all';
 $start_date = $_GET['start_date'] ?? '';
 $end_date = $_GET['end_date'] ?? '';
+
+// Categories
+$categories_result = mysqli_query($conn, "SELECT * FROM categories ORDER BY name");
 ?>
 
 <!DOCTYPE html>
@@ -50,17 +54,14 @@ $end_date = $_GET['end_date'] ?? '';
       <?php include 'header.php'; ?>
 
       <div class="p-4">
-        <!-- Title and Create Button -->
         <div class="d-flex justify-content-between align-items-center mb-4">
           <h2 class="mb-0"><?= htmlspecialchars($page_title) ?></h2>
-          <a href="createNews.php" class="btn btn-primary">+ Create News</a>
+          <a href="create_news.php" class="btn btn-primary">+ Create News</a>
         </div>
 
         <!-- Filter/Search Form -->
         <form method="GET" class="row g-3 mb-4">
-          <!-- Retain status in the URL -->
           <input type="hidden" name="status" value="<?= htmlspecialchars($status_filter) ?>">
-
           <div class="col-md-4">
             <label class="form-label">Search</label>
             <input type="text" name="search" value="<?= htmlspecialchars($search) ?>" class="form-control" placeholder="Search by title">
@@ -69,7 +70,7 @@ $end_date = $_GET['end_date'] ?? '';
             <label class="form-label">Category</label>
             <select name="category" class="form-select">
               <option value="all">All</option>
-              <?php while ($cat = mysqli_fetch_assoc($categories_result)): ?>
+              <?php mysqli_data_seek($categories_result, 0); while ($cat = mysqli_fetch_assoc($categories_result)): ?>
                 <option value="<?= $cat['id'] ?>" <?= ($category == $cat['id']) ? 'selected' : '' ?>>
                   <?= htmlspecialchars($cat['name']) ?>
                 </option>
@@ -91,39 +92,53 @@ $end_date = $_GET['end_date'] ?? '';
 
         <!-- News Table -->
         <?php
-        $query = "
-          SELECT a.*, c.name AS category_name
+        $base_query = "
           FROM articles a
           LEFT JOIN categories c ON a.category_id = c.id
-          WHERE a.author_id = $journalist_id
-            AND a.status = '$status_filter'
+          WHERE a.author_id = $journalist_id AND a.status = '$status_filter'
         ";
 
         if (!empty($search)) {
-          $search = mysqli_real_escape_string($conn, $search);
-          $query .= " AND a.title LIKE '%$search%'";
+          $search_safe = mysqli_real_escape_string($conn, $search);
+          $base_query .= " AND a.title LIKE '%$search_safe%'";
         }
 
         if ($category !== 'all') {
-          $category = mysqli_real_escape_string($conn, $category);
-          $query .= " AND a.category_id = '$category'";
+          $category_safe = mysqli_real_escape_string($conn, $category);
+          $base_query .= " AND a.category_id = '$category_safe'";
         }
 
         if (!empty($start_date) && !empty($end_date)) {
-          $query .= " AND DATE(a.created_at) BETWEEN '$start_date' AND '$end_date'";
+          $base_query .= " AND DATE(a.created_at) BETWEEN '$start_date' AND '$end_date'";
         }
 
-        $query .= " ORDER BY a.created_at DESC";
+        // Count for pagination
+        $count_result = mysqli_query($conn, "SELECT COUNT(*) AS total $base_query");
+        $total_rows = mysqli_fetch_assoc($count_result)['total'];
+        $total_pages = ceil($total_rows / $limit);
 
-        $articles_result = mysqli_query($conn, $query);
+        $final_query = "SELECT a.*, c.name AS category_name $base_query ORDER BY a.created_at DESC LIMIT $limit OFFSET $offset";
+        $articles_result = mysqli_query($conn, $final_query);
         if (!$articles_result) {
           die("Query failed: " . mysqli_error($conn));
         }
 
-        // No edit on status-based pages
-        $show_edit_column = true;
+        $show_edit_column = false;
         include 'newsTable.php';
         ?>
+
+        <!-- Pagination -->
+        <?php if ($total_pages > 1): ?>
+          <nav>
+            <ul class="pagination">
+              <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+                <li class="page-item <?= $i == $page ? 'active' : '' ?>">
+                  <a class="page-link" href="?<?= http_build_query(array_merge($_GET, ['page' => $i])) ?>"><?= $i ?></a>
+                </li>
+              <?php endfor; ?>
+            </ul>
+          </nav>
+        <?php endif; ?>
       </div>
     </div>
   </div>
