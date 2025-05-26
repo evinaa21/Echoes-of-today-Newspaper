@@ -22,7 +22,7 @@ if ($ad) {
         if (file_exists($imagePath)) {
             unlink($imagePath);
         }
-        $_SESSION['success'] = "Advertisement deleted.";
+        $_SESSION['ad_success'] = "Advertisement deleted.";
     } else {
         $_SESSION['error'] = "Failed to delete advertisement.";
     }
