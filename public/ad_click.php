@@ -41,13 +41,13 @@ $result = $stmt->get_result();
 
 if ($row = $result->fetch_assoc()) {
     // Redirect to the advertisement URL
+    $conn->close();
     header('Location: ' . $row['redirect_url']);
     exit();
 } else {
+    $conn->close();
     // If ad not found, redirect to homepage
     header('Location: index.php');
     exit();
 }
-
-$conn->close();
 ?>

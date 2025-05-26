@@ -543,10 +543,11 @@ function getImagePath($imagePath, $default = 'https://source.unsplash.com/random
                         <div class="sidebar-header">Newsletter</div>
                         <div class="sidebar-content newsletter">
                             <p>Stay updated with our latest news directly in your inbox.</p>
-                            <form>
-                                <input type="email" placeholder="Your Email Address" required>
+                            <form id="newsletterForm">
+                                <input type="email" id="newsletterEmail" placeholder="Your Email Address" required>
                                 <button type="submit">Subscribe</button>
                             </form>
+                            <div id="newsletterMessage" class="newsletter-message" style="display: none;"></div>
                         </div>
                     </div>
 
@@ -639,15 +640,7 @@ function getImagePath($imagePath, $default = 'https://source.unsplash.com/random
 
     <script src="js/script.js"></script>
     <script src="js/slider.js"></script>
-</body>
-
-</html>
-
-        </div>
-    </footer>
-
-    <script src="js/script.js"></script>
-    <script src="js/slider.js"></script>
+    <script src="js/newsletter.js"></script>
 </body>
 
 </html>
