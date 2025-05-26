@@ -126,7 +126,7 @@
       </li>
       <li><a href="profile.php"><i class="fas fa-user"></i> My Profile</a></li>
       <li><a href="edit_password.php"><i class="fas fa-key"></i> Change Password</a></li>
-      <li><a href="logout.php"><i class="fas fa-sign-out-alt"></i> Log Out</a></li>
+      <li><a href="../logout.php"><i class="fas fa-sign-out-alt"></i> Log Out</a></li>
     </ul>
   </nav>
 
