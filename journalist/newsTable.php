@@ -1,5 +1,5 @@
 <?php 
-$show_edit_column = true; // ✅ Ensure Actions column is shown
+$show_edit_column = true; 
 
 if (!isset($articles_result) || !is_object($articles_result)) {
   echo "<div class='alert alert-danger'>⚠️ No article data available. \$articles_result is not defined or invalid.</div>";

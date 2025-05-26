@@ -1,5 +1,5 @@
 <?php
-// session_start();
+require_once '../includes/auth_journalist.php';
 include_once '../includes/db_connection.php';
 
 // Handle form submission

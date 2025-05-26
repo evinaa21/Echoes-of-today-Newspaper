@@ -1,11 +1,10 @@
 <?php
-session_start();
+require_once '../includes/auth_journalist.php';
 include_once('../includes/db_connection.php');
 
-$userId = $_SESSION['user_id'] ?? 2;
-$userId = intval($userId);
+$userId = intval($_SESSION['user_id']);
 
-// ✅ Handle POST update and set session for success modal
+// Handle POST update and set session for success modal
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $first_name = $_POST['first_name'] ?? '';
   $last_name = $_POST['last_name'] ?? '';
@@ -24,14 +23,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   exit();
 }
 
-// ✅ Check if modal should be shown
+// Check if modal should be shown
 $showModal = false;
 if (isset($_SESSION['show_success_modal'])) {
   $showModal = true;
   unset($_SESSION['show_success_modal']);
 }
 
-// ✅ Fetch current user data
+// Fetch current user data
 $stmt = $conn->prepare("SELECT username, email, role, first_name, last_name, bio, profile_image, address, zip_code, city, mobile, country FROM users WHERE id = ?");
 $stmt->bind_param("i", $userId);
 $stmt->execute();
@@ -196,7 +195,7 @@ $image = $profile_image ? "uploads/2.png" : "uploads/2.png";
     </div>
   </div>
 
-  <!-- ✅ Success Modal -->
+  <!-- Success Modal -->
   <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content border-success">

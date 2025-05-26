@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once '../includes/auth_journalist.php';
 include('../includes/db_connection.php');
 
 $journalist_id = $_SESSION['user_id'] ?? 2;

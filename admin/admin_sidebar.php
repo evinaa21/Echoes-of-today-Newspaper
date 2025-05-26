@@ -32,7 +32,7 @@
 </li>
 
       <li><a href="report.php"><i class="fas fa-chart-line"></i> Report</a></li>
-      <li><a href="../login.php"><i class="fas fa-sign-out-alt"></i> Log Out</a></li>
+      <li><a href="../logout.php"><i class="fas fa-sign-out-alt"></i> Log Out</a></li>
     </ul>
   </nav>
 

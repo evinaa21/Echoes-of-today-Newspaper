@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once '../includes/auth_journalist.php';
 require '../includes/db_connection.php';
 
 $id = $_SESSION['user_id'] ?? 2;
@@ -150,7 +150,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div>
 
-    <!-- ✅ Success Modal -->
+    <!-- Success Modal -->
     <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-success">
