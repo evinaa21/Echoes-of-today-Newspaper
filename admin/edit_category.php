@@ -4,23 +4,23 @@ include('../includes/db_connection.php');
 include('../admin/admin_header.php');
 include('../admin/admin_sidebar.php');
 
-// Check if ID is provided
-if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
-    header('Location: category.php');
-    exit;
-}
+// // Check if ID is provided
+// if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
+//     header('Location: category.php');
+//     exit;
+// }
 
-$id = (int)$_GET['id'];
-$error = $success = '';
+// $id = (int)$_GET['id'];
+// $error = $success = '';
 
-// Fetch category
-$query = "SELECT * FROM categories WHERE id = $id";
-$result = mysqli_query($conn, $query);
-$category = mysqli_fetch_assoc($result);
+// // Fetch category
+// $query = "SELECT * FROM categories WHERE id = $id";
+// $result = mysqli_query($conn, $query);
+// $category = mysqli_fetch_assoc($result);
 
-if (!$category) {
-    $error = "Category not found.";
-}
+// if (!$category) {
+//     $error = "Category not found.";
+// }
 
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
