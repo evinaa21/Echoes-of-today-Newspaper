@@ -79,6 +79,14 @@ $sidebar_ad_query = "SELECT * FROM advertisements
 $sidebar_ad_result = $conn->query($sidebar_ad_query);
 $sidebar_ad = $sidebar_ad_result->fetch_assoc();
 
+// Get banner advertisement
+$banner_ad_query = "SELECT * FROM advertisements 
+                   WHERE ad_type = 'banner' AND is_active = 1 
+                   AND NOW() BETWEEN start_date AND end_date 
+                   ORDER BY RAND() LIMIT 1";
+$banner_ad_result = $conn->query($banner_ad_query);
+$banner_ad = $banner_ad_result->fetch_assoc();
+
 // Time function to format "time ago"
 function time_elapsed_string($datetime)
 {
@@ -152,6 +160,29 @@ function highlightSearchTerm($text, $query)
     }
 
     return $text;
+}
+
+// Add the getImagePath function from index.php
+function getImagePath($imagePath, $default = 'https://source.unsplash.com/random/400x250/?news')
+{
+    // If no image path is provided, return the default placeholder
+    if (empty($imagePath)) {
+        return $default;
+    }
+
+    // Extract the filename safely
+    $filename = basename($imagePath);
+
+    // Full path on the server (outside public folder)
+    $local_path = __DIR__ . '/../uploads/' . $filename;
+
+    // If the file exists in the uploads directory, return image.php URL
+    if (file_exists($local_path)) {
+        return 'image.php?file=' . urlencode($filename);
+    }
+
+    // Fallback to default
+    return $default;
 }
 ?>
 <!DOCTYPE html>
@@ -235,6 +266,54 @@ function highlightSearchTerm($text, $query)
             gap: 15px;
             color: var(--light-text);
             font-size: 0.9rem;
+        }
+
+        /* Improved Search Tips Styling - Only apply to search tips section */
+        .sidebar-section:first-of-type .sidebar-content ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar-section:first-of-type .sidebar-content ul li {
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+            position: relative;
+            padding-left: 25px;
+        }
+
+        .sidebar-section:first-of-type .sidebar-content ul li:last-child {
+            border-bottom: none;
+        }
+
+        .sidebar-section:first-of-type .sidebar-content ul li:before {
+            content: '💡';
+            position: absolute;
+            left: 0;
+            top: 12px;
+            font-size: 14px;
+        }
+
+        .sidebar-section:first-of-type .sidebar-content ul li:nth-child(1):before {
+            content: '🎯';
+        }
+
+        .sidebar-section:first-of-type .sidebar-content ul li:nth-child(2):before {
+            content: '📝';
+        }
+
+        .sidebar-section:first-of-type .sidebar-content ul li:nth-child(3):before {
+            content: '🔍';
+        }
+
+        .sidebar-section:first-of-type .sidebar-content ul li:nth-child(4):before {
+            content: '✅';
+        }
+
+        .sidebar-section:first-of-type .sidebar-content ul li {
+            color: var(--text-color);
+            font-size: 0.9rem;
+            line-height: 1.5;
         }
     </style>
 </head>
@@ -562,8 +641,13 @@ function highlightSearchTerm($text, $query)
                             <?php if ($sidebar_ad): ?>
                                 <a href="<?php echo htmlspecialchars($sidebar_ad['redirect_url']); ?>" target="_blank"
                                     class="sidebar-ad">
-                                    <img src="<?php echo htmlspecialchars($sidebar_ad['image_path']); ?>"
-                                        alt="<?php echo htmlspecialchars($sidebar_ad['name']); ?>">
+                                    <?php
+                                    $img = getImagePath($sidebar_ad['image_path'], 'https://source.unsplash.com/random/300x250/?advertisement');
+                                    ?>
+                                    <img src="<?php echo htmlspecialchars($img); ?>"
+                                        alt="<?php echo htmlspecialchars($sidebar_ad['name']); ?>"
+                                        width="<?php echo $sidebar_ad['width']; ?>"
+                                        height="<?php echo $sidebar_ad['height']; ?>">
                                 </a>
                             <?php else: ?>
                                 <div class="sidebar-ad">Advertisement</div>
