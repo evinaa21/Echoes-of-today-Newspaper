@@ -3,7 +3,9 @@ session_start();
 include('../includes/db_connection.php');
 include('../admin/admin_sidebar.php');
 include('../admin/admin_header.php');
+
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -25,8 +27,12 @@ include('../admin/admin_header.php');
 </head>
 
 <body>
+    
 
     <div class="main-content">
+        <?php if (isset($_SESSION['success'])): ?>
+  <div class="alert alert-success"><?= $_SESSION['success']; unset($_SESSION['success']); ?></div>
+<?php endif; ?>
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h4>All Categories</h4>
             <a href="add_category.php" class="btn btn-primary">+ Add Category</a>
@@ -36,6 +42,7 @@ include('../admin/admin_header.php');
         $query = "SELECT * FROM categories ORDER BY display_order ASC";
         $result = mysqli_query($conn, $query);
         ?>
+
 
         <table class="table table-bordered table-hover">
             <thead class="table-primary">
