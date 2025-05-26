@@ -58,7 +58,7 @@
     <span class="current-datetime" id="currentDateTime"></span>
     <a href="../public/index.php" title="Visit Website" target="_blank"><i class="bi bi-globe"></i></a>
     <a href="profile.php" title="My Profile"><i class="bi bi-person-circle"></i></a>
-    <a href="logout.php" title="Log Out"><i class="bi bi-box-arrow-right"></i></a>
+    <a href="../logout.php" title="Log Out"><i class="bi bi-box-arrow-right"></i></a>
   </div>
 </div>
 

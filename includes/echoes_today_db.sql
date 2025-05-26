@@ -449,3 +449,27 @@ COMMIT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+
+UPDATE users SET profile_image = 'admin/uploads/mike.png' WHERE users.id = 3;
+UPDATE `users` SET `profile_image` = 'admin/uploads/admin.png' WHERE `users`.`id` = 1;
+
+-- Update Admin (ID = 1)
+UPDATE users
+SET 
+  mobile = '+355681234567',
+  country = 'Albania',
+  address = 'Rr. e Durresit, Nr.10',
+  zip_code = '1001',
+  city = 'Tirana'
+WHERE id = 1;
+
+-- Update Mike Jones (ID = 3)
+UPDATE users
+SET 
+  mobile = '+355672223344',
+  country = 'Albania',
+  address = 'Bulevardi Zogu I',
+  zip_code = '1002',
+  city = 'Tirana'
+WHERE id = 3;
+

@@ -2,48 +2,40 @@
 session_start();
 require '../includes/db_connection.php';
 
-$id = $_SESSION['user_id'] ?? 0;
+$id = 1;                       // force-load admin (id = 1)
 $id = intval($id);
 
-// Fetch user details
+/* ---------- fetch user ---------- */
 $stmt = $conn->prepare("SELECT * FROM users WHERE id = ?");
 $stmt->bind_param("i", $id);
 $stmt->execute();
-$result = $stmt->get_result();
-$user = $result->fetch_assoc();
+$user = $stmt->get_result()->fetch_assoc();
 $stmt->close();
 
-//if (!$user) {
-//    header('Location: dashboard.php');
-//    exit;
-//}
-
 $errors = ['password' => '', 'confirm_password' => ''];
-$showSuccessModal = false;
+$success = isset($_GET['success']);          // <-- (1) read flag
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $password = $_POST['password'] ?? '';
-    $confirm_password = $_POST['confirm_password'] ?? '';
+    $password          = $_POST['password']          ?? '';
+    $confirm_password  = $_POST['confirm_password']  ?? '';
 
-    if (strlen($password) < 6) {
-        $errors['password'] = 'Password must be at least 6 characters.';
-    }
-
-    if ($password !== $confirm_password) {
-        $errors['confirm_password'] = 'Passwords do not match.';
-    }
+    if (strlen($password) < 6)            $errors['password']         = 'Password must be at least 6 characters.';
+    if ($password !== $confirm_password)  $errors['confirm_password'] = 'Passwords do not match.';
 
     if (empty($errors['password']) && empty($errors['confirm_password'])) {
-        $hashpassword = password_hash($password, PASSWORD_BCRYPT);
+        $hash = password_hash($password, PASSWORD_BCRYPT);
+
         $stmt = $conn->prepare("UPDATE users SET password = ? WHERE id = ?");
-        $stmt->bind_param("si", $hashpassword, $id);
+        $stmt->bind_param("si", $hash, $id);
         $stmt->execute();
         $stmt->close();
-        $showSuccessModal = true;
+
+        /* ---------- (2) redirect back with success flag ---------- */
+        header('Location: change_password.php?success=1');
+        exit;
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -51,77 +43,53 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <title>Change Password</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet" />
   <link rel="stylesheet" href="css/admin_style.css" />
   <style>
-        .form-label {
-            font-weight: 500;
-            color: #0d47a1;
-        }
-
-        .error {
-            color: red;
-            font-size: 0.85rem;
-        }
-
-        .dashboard-card {
-            padding: 30px;
-            border-radius: 20px;
-            background: linear-gradient(135deg, #ffffff, #f5f8ff);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease-in-out;
-            border: 1px solid #d0e2ff;
-        }
-
-        .dashboard-card:hover {
-            transform: scale(1.015);
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
-        }
-
-        .dashboard-card .form-control {
-            border-radius: 12px;
-            border: 1px solid #b0c4de;
-        }
-
-        .dashboard-card .btn-primary {
-            background-color: #0d47a1;
-            border-color: #0d47a1;
-            border-radius: 10px;
-            font-weight: 500;
-        }
-
-        .dashboard-card .btn-secondary {
-            border-radius: 10px;
-        }
-          .main-content {
-      margin-left: 250px; 
-      margin-top: 60px;   
-      padding: 30px;
-      background-color: #f8f9fa;
-      min-height: 100vh;
-    }
+      /* styles unchanged … */
+      .form-label        { font-weight:500;color:#0d47a1 }
+      .error             { color:red;font-size:.85rem }
+      .dashboard-card    { padding:30px;border-radius:20px;background:linear-gradient(135deg,#fff,#f5f8ff);
+                           box-shadow:0 8px 24px rgba(0,0,0,.1);border:1px solid #d0e2ff }
+      .dashboard-card:hover { transform:scale(1.015);box-shadow:0 12px 30px rgba(0,0,0,.15) }
+      .dashboard-card .form-control { border-radius:12px;border:1px solid #b0c4de }
+      .dashboard-card .btn-primary  { background:#0d47a1;border-color:#0d47a1;border-radius:10px;font-weight:500 }
+      .dashboard-card .btn-secondary{ border-radius:10px }
+      .main-content { margin-left:250px;margin-top:60px;padding:30px;background:#f8f9fa;min-height:100vh }
   </style>
 </head>
-
 <body>
   <div class="d-flex">
     <?php include 'admin_sidebar.php'; ?>
-<div class="container-fluid p-0">
-  <?php include 'admin_header.php'; ?>
+    <div class="container-fluid p-0">
+      <?php include 'admin_header.php'; ?>
 
-  <div class="main-content">
-    <h2 class="fw-bold mb-4" style="font-size: 2rem; color: #000;">Change Password</h2>
+      <div class="main-content">
+        <h2 class="fw-bold mb-4" style="font-size:2rem;">Change Password</h2>
+
+        <div class="dashboard-card mx-auto" style="max-width:500px;">
+          <?php if ($success): ?>
+            <div class="alert alert-success mb-4">✅ Password changed successfully.</div>
+          <?php endif; ?>
+
+          <?php if ($success): ?>
+  <script>
+    /* once DOM is ready, drop ?success=1 from the address bar */
+    window.addEventListener('DOMContentLoaded', () => {
+      const cleanURL = location.pathname;            // e.g.  /admin/change_password.php
+      history.replaceState(null, '', cleanURL);      // updates bar without reloading
+    });
+  </script>
+<?php endif; ?>
 
 
-        <div class="dashboard-card mx-auto" style="max-width: 500px;">
           <p class="text-muted">Update your account password below.</p>
 
           <form method="POST" class="mt-3">
-            <input type="hidden" name="id" value="<?= htmlspecialchars($id) ?>">
+            <input type="hidden" name="id" value="<?= $id ?>">
 
             <div class="mb-3">
               <label class="form-label">Username</label>
-              <input type="text" class="form-control" value="<?= htmlspecialchars($user['username'] ?? '') ?>" readonly>
+              <input type="text" class="form-control" value="<?= htmlspecialchars($user['username']) ?>" readonly>
             </div>
 
             <div class="mb-3">
@@ -143,7 +111,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="mb-3 d-flex align-items-center justify-content-end gap-2">
               <label class="form-check-label small mb-0" for="showPasswords">Show Passwords</label>
               <div class="form-check form-switch mb-0">
-                <input class="form-check-input" type="checkbox" id="showPasswords" onclick="togglePasswordVisibility()">
+                <input class="form-check-input" type="checkbox" id="showPasswords"
+                       onclick="passwordToggle()">
               </div>
             </div>
 
@@ -157,40 +126,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
   </div>
 
-  <!-- ✅ Success Modal -->
-  <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content border-success">
-        <div class="modal-header bg-success text-white">
-          <h5 class="modal-title" id="successModalLabel">Password Changed</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          ✅ Your password has been updated successfully.
-        </div>
-        <div class="modal-footer">
-          <a href="profile.php" class="btn btn-success">OK</a>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    function togglePasswordVisibility() {
-      const pass = document.getElementById("password");
-      const confirm = document.getElementById("confirm_password");
-      pass.type = pass.type === "password" ? "text" : "password";
-      confirm.type = confirm.type === "password" ? "text" : "password";
-    }
-
-    <?php if ($showSuccessModal): ?>
-      window.addEventListener('DOMContentLoaded', function () {
-        const modal = new bootstrap.Modal(document.getElementById('successModal'));
-        modal.show();
-      });
-    <?php endif; ?>
-  </script>
-
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    function passwordToggle() {
+      ['password','confirm_password'].forEach(id => {
+        const f = document.getElementById(id);
+        f.type = (f.type === 'password') ? 'text' : 'password';
+      });
+    }
+  </script>
 </body>
 </html>

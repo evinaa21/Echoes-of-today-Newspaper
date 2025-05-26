@@ -56,7 +56,7 @@ $categories_result = mysqli_query($conn, "SELECT * FROM categories ORDER BY name
       <div class="p-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
           <h2 class="mb-0"><?= htmlspecialchars($page_title) ?></h2>
-          <a href="create_news.php" class="btn btn-primary">+ Create News</a>
+          <a href="createNews.php" class="btn btn-primary">+ Create News</a>
         </div>
 
         <!-- Filter/Search Form -->

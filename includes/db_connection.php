@@ -1,5 +1,5 @@
 <?php
-require_once '../config/config.php';
+require_once __DIR__ . '/../config/config.php';
 
 // Establish connection
 $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME,3307);

@@ -8,7 +8,7 @@
     </a>
 
     <div class="profile-dropdown position-relative" onclick="toggleDropdown()" style="cursor: pointer;">
-      <img src="uploads/" alt="Profile" class="profile-img">
+      <img src="uploads/1747995328_adminPfp.png" alt="Profile" class="profile-img">
       <span class="username">admin</span>
       <i class="fas fa-chevron-down"></i>
 

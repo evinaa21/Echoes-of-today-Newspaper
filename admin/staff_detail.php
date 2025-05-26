@@ -216,10 +216,6 @@ $imagePath = $profileImage ? '../' . htmlspecialchars($profileImage) : '../uploa
             <input type="text" class="form-control" value="<?= htmlspecialchars($user['city'] ?? '') ?>" disabled>
           </div>
           <div class="col-md-6">
-            <label class="form-label">State</label>
-            <input type="text" class="form-control" value="<?= htmlspecialchars($user['state'] ?? '') ?>" disabled>
-          </div>
-          <div class="col-md-6">
             <label class="form-label">Zip Code</label>
             <input type="text" class="form-control" value="<?= htmlspecialchars($user['zip_code'] ?? '') ?>" disabled>
           </div>
