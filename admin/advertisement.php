@@ -33,6 +33,12 @@ $result = mysqli_query($conn, $query);
 
 <div class="main-content" style="margin-left: 250px; margin-top: 70px; padding: 30px;">
   <div class="d-flex justify-content-between align-items-center mb-4">
+    <?php if (isset($_SESSION['success'])): ?>
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+      <?= $_SESSION['success']; unset($_SESSION['success']); ?>
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+  <?php endif; ?>
     <h4>All Advertisements</h4>
     <a href="add_advertisement.php" class="btn btn-primary">+ Add New</a>
   </div>
