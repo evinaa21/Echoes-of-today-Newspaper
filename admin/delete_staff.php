@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once '../includes/auth_admin.php'; 
 include('../includes/db_connection.php');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_id']) && is_numeric($_POST['delete_id'])) {

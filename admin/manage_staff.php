@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['check_duplicate'])) {
     echo json_encode($response);
     exit;
 }
-session_start();
+require_once '../includes/auth_admin.php'; 
 include('../includes/db_connection.php');
 
 //Handle fetching single staff info (for filtering)

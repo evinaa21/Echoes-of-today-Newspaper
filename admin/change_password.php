@@ -1,8 +1,8 @@
 <?php
-session_start();
+require_once '../includes/auth_admin.php'; 
 require '../includes/db_connection.php';
 
-$id = 1;                       // force-load admin (id = 1)
+$id = $_SESSION['user_id'];  
 $id = intval($id);
 
 /* ---------- fetch user ---------- */

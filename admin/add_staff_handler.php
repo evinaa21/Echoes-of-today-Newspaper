@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once '../includes/auth_admin.php'; 
 include('../includes/db_connection.php');
 
 // Handle form submission
