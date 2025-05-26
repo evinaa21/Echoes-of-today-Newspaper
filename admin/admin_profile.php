@@ -81,7 +81,7 @@ $admin = mysqli_fetch_assoc($result);
           <form method="POST" action="admin_profile.php" enctype="multipart/form-data">
             <div class="mb-3">
               <label class="form-label">Image</label><br>
-              <img src="<?= htmlspecialchars($admin['profile_image'] ?? 'assets/img/default.png') ?>" class="rounded mb-2" width="150"><br>
+              <img src="<?= htmlspecialchars($admin['profile_image'] ?? '/uploads/admin.png') ?>" class="rounded mb-2" width="150"><br>
               <input type="file" name="profile_image" accept=".png,.jpg,.jpeg" class="form-control">
               <small class="text-muted">Supported formats: .png, .jpg. Will be resized to 400x400px.</small>
             </div>

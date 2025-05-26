@@ -473,3 +473,23 @@ SET
   city = 'Tirana'
 WHERE id = 3;
 
+UPDATE users
+SET
+  country = 'United Kingdom',
+  address = '221B Baker Street',
+  zip_code = 'NW1 6XE',
+  city = 'London'
+WHERE email = 'ssmith@echoestoday.com';
+
+UPDATE `users` SET `profile_image` = 'journalist/uploads/john123.png\r\n' WHERE `users`.`id` = 6;
+
+UPDATE users
+SET
+  mobile = '+355699998877',
+  country = 'Albania',
+  address = 'Rruga Medar Shtylla, Pall. 5',
+  zip_code = '1005',
+  city = 'Tirana',
+  bio = 'John is a young journalist focusing on technology, startups, and digital culture.',
+  status = 'active'
+WHERE email = 'john@email.com';
