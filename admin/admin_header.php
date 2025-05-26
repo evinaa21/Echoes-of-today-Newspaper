@@ -8,7 +8,7 @@
     </a>
 
     <div class="profile-dropdown position-relative" onclick="toggleDropdown()" style="cursor: pointer;">
-      <img src="uploads/1747995328_adminPfp.png" alt="Profile" class="profile-img">
+      <img src="uploads/admin.png" alt="Profile" class="profile-img">
       <span class="username">admin</span>
       <i class="fas fa-chevron-down"></i>
 
@@ -16,7 +16,7 @@
       <div id="dropdown-menu" class="dropdown-menu position-absolute" style="right: 0; display: none;">
         <a href="admin_profile.php"><i class="fas fa-user"></i> Profile</a>
         <a href="change_password.php"><i class="fas fa-key"></i> Password</a>
-        <a href="logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        <a href="../logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a>
       </div>
     </div>
   </div>
